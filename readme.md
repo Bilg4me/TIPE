@@ -26,7 +26,7 @@ Documentation Tkinter
 
 Theses et documents scientifiques
 - https://interstices.info/le-plus-court-chemin/
-- https://tel.archives-ouvertes.fr/tel-00344958/document
+- https://tel.archives-ouvertes.fr/tel-00344958/document (Mohamed Mejdi Hizem)
 - http://www.numdam.org/article/RO_1983__17_4_357_0.pdf
-- https://tel.archives-ouvertes.fr/tel-01760491/document
-- https://tel.archives-ouvertes.fr/tel-00563197/document
+- https://tel.archives-ouvertes.fr/tel-01760491/document (Farida MANSEUR)
+- https://tel.archives-ouvertes.fr/tel-00563197/document (Aurélie Bousquet)

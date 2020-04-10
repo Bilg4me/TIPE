@@ -19,7 +19,9 @@ Méthode primales pour resoudre le pb du plus court chemin avec contraintes de r
 
 ## Documentations
 [Documentation Tkinter](http://tkinter.fdex.eu/doc/bw.html)
+
 [Documentation Graphviz](https://graphviz.readthedocs.io/en/stable/manual.html)
+
 [Générateur de graphes Graphviz it !](http://graphviz.it/#/gallery/abstract.gv)
 
 ## Theses et documents scientifiques

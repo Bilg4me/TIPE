@@ -1,7 +1,7 @@
 # Ceci est le repertoire du TIPE
-*(Problème du plus court chemin)*
 
 ## Problématiques
+
 - Optimisation en temps et/ou en distance d’un trajet entre deux points
 - Capacité à s’adapter à des perturbation sur un trajet (route barrée, mobile entrant dans le circuit)
 
@@ -10,14 +10,18 @@
 - [Metro et réseaux](https://images.math.cnrs.fr/+Plans-de-metro-et-reseaux+?lang=fr)
 
 ## Algorithme de Djikstra
-- http://www.alcandre.net/uploads/TD-dijkstra.pdf
-- https://www.maths-cours.fr/methode/algorithme-de-dijkstra-etape-par-etape/
+
+- <http://www.alcandre.net/uploads/TD-dijkstra.pdf>
+- <https://www.maths-cours.fr/methode/algorithme-de-dijkstra-etape-par-etape/>
 
 ## Outils technique pour resolution des problèmes
+
 Programmation dynamique
+
 Méthode primales pour resoudre le pb du plus court chemin avec contraintes de ressources
 
 ## Documentations
+
 [Documentation Tkinter](http://tkinter.fdex.eu/doc/bw.html)
 
 [Documentation Graphviz](https://graphviz.readthedocs.io/en/stable/manual.html)

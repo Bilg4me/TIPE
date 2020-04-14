@@ -135,7 +135,7 @@ def Visualiser(A,B,G,barycentre):
 				else:
 					g.edge( Alphabet[j] , Alphabet[i] ,label = str(Adj[i][j]) , color='black')
 	
-	g.view()
+	g.view("Graphe.gv", "Graphe")
 			
 def min_of(L):
 	M,m = None,INF

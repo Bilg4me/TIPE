@@ -116,11 +116,10 @@ def DotVersGraphe(content):
 			G.append( (l,Points) )
 	return G
 
-path = 'abstract.gv'
+path = 'Graphe/abstract.gv'
 dot = Source.from_file(path)	
 dot.source = Lettrifier(Normaliser(dot.source))
 Abstrait = DotVersGraphe(dot.source)
-
 
 
 

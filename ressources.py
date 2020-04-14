@@ -1,9 +1,6 @@
-
 from math import inf
 from random import randint
 from graphviz import Graph, Source
-
-
 
 class Poids:
 	
@@ -120,7 +117,6 @@ path = 'Graphe/abstract.gv'
 dot = Source.from_file(path)	
 dot.source = Lettrifier(Normaliser(dot.source))
 Abstrait = DotVersGraphe(dot.source)
-
 
 
 

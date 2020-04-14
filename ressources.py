@@ -2,6 +2,8 @@ from math import inf
 from random import randint
 from graphviz import Graph, Source
 
+# petit commentaire pour tester al fonctionnalité de branche
+
 class Poids:
 	
 	λ = None

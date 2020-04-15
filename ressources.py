@@ -3,7 +3,7 @@ from random import randint
 from graphviz import Graph, Source
 
 # petit commentaire pour tester al fonctionnalité de branche
-#test commentaire
+
 class Poids:
 	
 	λ = None

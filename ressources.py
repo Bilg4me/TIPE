@@ -2,30 +2,28 @@ from math import inf
 from random import randint
 from graphviz import Graph, Source
 
-# petit commentaire pour tester al fonctionnalité de branche
-
 class Poids:
-	
+
 	λ = None
-	
+
 	def __init__(self, time, dist):
 		self.temps = time
 		self.distance = dist
-	
+
 	def __add__(self, w):
 		p = Poids(0,0)
 		p.distance = self.distance + w.distance
 		p.temps = self.temps + w.temps
 		return p
-	
+
 	def __iadd__(self, w):
 		return self + w
-		
+
 	def __lt__(self,w):
 		if w.temps == inf:
-			return True 
+			return True
 		return  Poids.λ * self.temps + (1-Poids.λ) * self.distance < Poids.λ * w.temps + (1-Poids.λ) * w.distance
-	
+
 	def __eq__(self,w):
 		if w.temps == inf and self.temps == inf:
 			return True
@@ -33,16 +31,16 @@ class Poids:
 			return False
 		else:
 			 return Poids.λ * self.temps + (1-Poids.λ) * self.distance == Poids.λ * w.temps + (1-Poids.λ) * w.distance
-		
+
 	def __le__(self,w):
 		return self < w or self == w
-		
+
 	def __gt__(self,w):
 		return not (self <= w)
-	
+
 	def __ge__(self,w):
 		return not (self < w)
-	
+
 	def __str__(self):
 		return "(t{0},d{1})".format(self.temps, self.distance)
 
@@ -56,7 +54,7 @@ def Annuaire():
     for i in range(50):
         A[chr(65 + i)] = i
     return A
-    
+
 P = lambda : Poids(randint(1,6),randint(1,6))
 
 Pays = [
@@ -65,7 +63,6 @@ Pays = [
 ('C',[('B',P()),('D',P()),('E',P())]),
 ('F',[('D',P()),('E',P())])
 ]
-
 
 Ville = [
 ('A', [('B', P()),('C', P()), ('D', P())]),
@@ -76,7 +73,7 @@ def Normaliser(s):
 	g = ""
 	build = ""
 	for k in range(len(s)):
-		
+
 		if s[k].isnumeric():
 			build += s[k]
 		elif build != "":
@@ -116,10 +113,6 @@ def DotVersGraphe(content):
 	return G
 
 path = 'Graphe/abstract.gv'
-dot = Source.from_file(path)	
+dot = Source.from_file(path)
 dot.source = Lettrifier(Normaliser(dot.source))
 Abstrait = DotVersGraphe(dot.source)
-
-
-
-

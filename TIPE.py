@@ -2,10 +2,10 @@ from ressources import *
 
 def Mat(n):
     return [[ZERO for j in range(n)] for i in range(n)]
-    
+
 def Taille(M):
     return len(M)
-    
+
 def Noeuds(G):
 	N = []
 	for P,Points in G:
@@ -38,11 +38,11 @@ def Autour(S, Adj):
 def PlusProche(Lignes):
 	M,m = None,INF
 	for k in range(len(Lignes[-1])) :
-		
+
 		if type(Lignes[-1][k]) == tuple and Lignes[-1][k][1] < m:
-			
+
 			M,m = Alphabet[k],Lignes[-1][k][1]
-			
+
 	return M,m
 
 def Retirer(P, Points):
@@ -66,9 +66,9 @@ def Init(M, G):
 	return L, T, R, A
 
 def Tableau(M, G):
-	
+
 	Lignes ,Trouve, Recherche, Adj = Init(M,G)
-	
+
 	def Placer(O,Voisins,acc):
 		L = []
 		PointsTrouves = [P for P,poids in Trouve]
@@ -87,29 +87,29 @@ def Tableau(M, G):
 							L.append((O, acc + poids))
 					elif P == M and Lignes[-1][Annuaire()[M]] == INF:
 						L.append((O, acc + poids))
-						
+
 			else:
 				L.append(Lignes[-1][Annuaire()[M]])
-				
+
 		Lignes.append(L)
 		Trouve.append(PlusProche(Lignes))
 		Retirer(O, Recherche)
 
-	
+
 	while len(Recherche) > 1:
 		M = Trouve[-1][0]
 		acc = Trouve[-1][1]
 		V = Autour(M, Adj)
 		Placer(M,V,acc)
 		# print("je pars de",M,"accumulateur",acc)
-		
+
 	return Lignes, Trouve
 
 def BienAfficher(L):
 	disp = ""
 	for l in L:
 		disp += str(l) + '\n'
-	
+
 	print(disp)
 
 def Suivis(A,B,L):
@@ -134,16 +134,16 @@ def Visualiser(A,B,G,barycentre):
 					g.edge( Alphabet[j] , Alphabet[i] ,label = str(Adj[i][j]) + "PCC2" , color='red', penwidth='2')
 				else:
 					g.edge( Alphabet[j] , Alphabet[i] ,label = str(Adj[i][j]) , color='black')
-	
+
 	g.view("Graphe.gv", "Graphe")
-			
+
 def min_of(L):
 	M,m = None,INF
 	for k in L:
 		if type(k) == tuple and k[1] < m:
 			M,m = k
 	return M
-	
+
 def Chemin(A,B,G,barycentre):
 	Poids.λ = barycentre
 	Optimal = [B]
@@ -157,13 +157,9 @@ def Chemin(A,B,G,barycentre):
 
 ###################
 ## PHASE DE TEST ##
-##################
+###################
 
 oui = 1
 while oui:
 	Visualiser('A',chr(65+randint(1,13)),Abstrait,1)
 	oui = int(input("continuer ?"))
-
-
-
-

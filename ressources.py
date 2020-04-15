@@ -1,36 +1,52 @@
-from math import inf
-from random import randint
-from graphviz import Graph, Source
+from random import *
+from math import *
+
+# TODO: Gerer les inf avec la methode isinf() et isnan()
+
+def Antidoublons(L):
+	B = sorted(L)
+	A = [B[0]]
+	for k in range(1,len(B)):
+		if B[k][0] == A[-1][0]:
+			A[-1] = (B[k][0],round(A[-1][1]+B[k][1], 2))
+		else:
+			A.append(B[k])
+	return A
 
 class Poids:
 
-	λ = None
+	def __init__(self, COUPLES):
+		self.couples = ([])
 
-	def __init__(self, time, dist):
-		self.temps = time
-		self.distance = dist
+		for (c,p) in Antidoublons(COUPLES):
+			self.couples.append((c,p))
+
+		self.valeur = self.Esperance()
+
+	# Surcharge des operateurs
 
 	def __add__(self, w):
-		p = Poids(0,0)
-		p.distance = self.distance + w.distance
-		p.temps = self.temps + w.temps
-		return p
+		COUPLES = []
+		for cs,ps in self.couples:
+			for cw,pw in w.couples:
+				COUPLES.append((cs+cw, ps*pw))
+		return Poids(COUPLES)
 
 	def __iadd__(self, w):
 		return self + w
 
-	def __lt__(self,w):
-		if w.temps == inf:
-			return True
-		return  Poids.λ * self.temps + (1-Poids.λ) * self.distance < Poids.λ * w.temps + (1-Poids.λ) * w.distance
+	def __str__(self):
+		return " couples {}, valeur {}".format(self.couples, self.valeur)
 
-	def __eq__(self,w):
-		if w.temps == inf and self.temps == inf:
+	def __lt__(self, w):
+		if isinf(w):
 			return True
-		elif w.temps == inf and self.temps != inf:
+		return self.valeur < w.valeur
+
+	def __eq__(self, w):
+		if isinf(w):
 			return False
-		else:
-			 return Poids.λ * self.temps + (1-Poids.λ) * self.distance == Poids.λ * w.temps + (1-Poids.λ) * w.distance
+		return self.valeur == w.valeur
 
 	def __le__(self,w):
 		return self < w or self == w
@@ -41,78 +57,35 @@ class Poids:
 	def __ge__(self,w):
 		return not (self < w)
 
-	def __str__(self):
-		return "(t{0},d{1})".format(self.temps, self.distance)
+	def __float__(self):
+		return self.valeur
 
-ZERO = Poids(0,0)
-INF = Poids(inf,inf)
+	## Fonctions propre
 
-Alphabet = [ chr(65+i) for i in range(50) ]
+	def Esperance(self) :
+		E = 0
+		for (c,p) in self.couples:
+			E += c * p
+		return E
 
-def Annuaire():
-    A = {}
-    for i in range(50):
-        A[chr(65 + i)] = i
-    return A
 
-P = lambda : Poids(randint(1,6),randint(1,6))
+def subAlea(x,L):
+    if len(L) == 2 or x <= 0.2:
+        L.append(round(1-sum(L), 2))
+        return L
+    L.append(round(uniform(0,x), 2))
+    return subAlea( x - L[-1], L)
 
-Pays = [
-('A',[('B',P()),('E',P())]),
-('B',[('D',P())]),
-('C',[('B',P()),('D',P()),('E',P())]),
-('F',[('D',P()),('E',P())])
-]
+def P():
+	plist = subAlea(1,[])
+	clist = [randint(1,4) for k in range(len(plist))]
+	return Poids(zip(clist,plist))
 
-Ville = [
+GSS = [
 ('A', [('B', P()),('C', P()), ('D', P())]),
 ('D', [('B', P()),('C', P())])
 ]
 
-def Normaliser(s):
-	g = ""
-	build = ""
-	for k in range(len(s)):
-
-		if s[k].isnumeric():
-			build += s[k]
-		elif build != "":
-			if int(build) > 15:
-				g += str(randint(0,15)) + s[k]
-			else:
-				g+= build + s[k]
-			build = ""
-		else:
-			g += s[k]
-	return g
-
-def Lettrifier(s):
-	g = ""
-	build = ""
-	for k in range(len(s)):
-		if s[k].isnumeric():
-			build += s[k]
-		elif build != "":
-			g += Alphabet[int(build)] + s[k]
-			build = ""
-		else:
-			g += s[k]
-	return g
-
-def DotVersGraphe(content):
-	G = []
-	L = content.split('\n\t')
-	L = L[1:-1]
-	for l in Alphabet:
-		Points = []
-		for t in L:
-			if t[0] == l:
-				Points.append((t[-1],P()))
-		if Points != []:
-			G.append( (l,Points) )
-	return G
-
-path = 'Graphe/abstract.gv'
-dot = Source.from_file(path)
-dot.source = Lettrifier(Normaliser(dot.source))
-Abstrait = DotVersGraphe(dot.source)
+###################
+## PHASE DE TEST ##
+###################

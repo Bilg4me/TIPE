@@ -72,7 +72,6 @@ def Tableau(M, G):
 		acc = Trouve[-1][1]
 		V = Autour(M, Adj)
 		Placer(M,V,acc)
-		print("je pars de",M,"accumulateur",acc)
 		
 	return Lignes, Trouve
 
@@ -92,7 +91,7 @@ def Suivis(A,B,L):
 def Visualiser(A,B,G):
 	print("plus court chemin entre {} et {}".format(A,B))
 	Adj = GrapheVersMat(G)
-	g = Graph(engine='dot')
+	g = Graph(engine='sfdp')
 	PCC1 = Chemin(A,B,G)
 	for i in range(len(Adj)):
 		for j in range(i+1,len(Adj)):
@@ -125,4 +124,5 @@ def Chemin(A,B,G):
 ###################
 ## PHASE DE TEST ##
 ###################
-r = Visualiser('A','D', GSS)
+
+r = Visualiser('C','F', Pays)

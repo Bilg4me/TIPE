@@ -2,8 +2,9 @@ from random import *
 from math import *
 from graphviz import Graph
 
-# UTILISER CECI POUR ATOM  : inf = float('inf')
-# Une chose qui m'a posé problème sans que je ne le remarque la fonction add n'etait pas adapté pour ajouter des poids nuls
+# Une chose qui m'a posé problème sans que je ne le remarque
+# la fonction add n'était pas adapté pour ajouter des poids nuls
+# et que l'ordre dans lequel on addtionnait comptait dans ce cas partculier
 
 Alphabet = [ chr(65+i) for i in range(50) ]
 
@@ -71,14 +72,15 @@ class Poids:
 			for (cw,pw) in w.couples:
 				COUPLES.append((cs+cw, ps*pw))
 		return Poids(COUPLES)
-		
-	
 
 	def __iadd__(self, w):
 		return self + w
 
 	def __str__(self):
-		return "{}".format(self.valeur)
+		s = ""
+		for c,p in self.couples:
+			s += " | {} : {} ".format(c,p) + '\n'
+		return s
 
 	def __lt__(self, w):
 		if isinf(w):
@@ -110,7 +112,7 @@ class Poids:
 		E = 0
 		for (c,p) in self.couples:
 			E += c * p
-		return E
+		return round(E,2)
 
 
 def subAlea(x,L):
@@ -128,13 +130,18 @@ def P():
 ZERO = Poids([(0,0)])
 INF = inf
 
-GSS = [
+Ville = [
 ('A', [('B', P()),('C', P()), ('D', P())]),
 ('D', [('B', P()),('C', P())])
+]
+
+Pays = [
+('A',[('B',P()),('E',P())]),
+('B',[('D',P())]),
+('C',[('B',P()),('D',P()),('E',P())]),
+('F',[('D',P()),('E',P())])
 ]
 
 ###################
 ## PHASE DE TEST ##
 ###################
-
-

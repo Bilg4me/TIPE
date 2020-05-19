@@ -1,18 +1,11 @@
 from math import inf
-from random import randint
+from random import randint, sample
 from graphviz import Graph, Source
 
-## TODO: Travailler avec un graphe FIFO
-## TODO: Créer la classe Poids Dynamique 
-## Methode : maj, add, eq, lt, str, float, ...
-## Attribut : Uplet
-## Variable de classe : Horloge, Periode, Index
-
-# IDEES : Une methode statique ou de classe qui stockerait les Poids crées dans une db et qui pourrait tous les mettre à jour
-# avec un methode de statique ou de classe qui les mettrait à jour
-
-# Questionnement : est ce que horloge et index ne devrait-il pas être un attribut plutot qu'une variable de classe ?
-# ne serait-ce que pour bien afficher les poids lors du graph final
+## Collection : Liste
+## Variable de classe : Cycle, Periode, NBelement
+# Un cycle (ex : une journée) correspond a Nb.element * Periode
+# la loi + n'est pas commutative et s'ecrit sous la forme acc + poids pour etre conforme avec l'associativité sous python
 
 def Mat(n):
     return [[ZERO for j in range(n)] for i in range(n)]
@@ -44,7 +37,8 @@ class Poids:
 	
 	# Variable de classe
 	NBelement = 3
-	Periode = 12 // NBelement
+	Cycle = 12
+	Periode = Cycle // NBelement
 	
 	def __init__(self, liste_temps):
 		self.collection = liste_temps
@@ -59,7 +53,7 @@ class Poids:
 		
 	def __getitem__(self, index):
 		return self.collection[index]
-		
+
 	def __add__(self, poids):
 		# ici self est un accumulateur de sorte qu'on défini ici une loi + de la forme acc + poids
 		
@@ -69,7 +63,7 @@ class Poids:
 		collectionSomme = []
 
 		for valeur in self:
-			v = self.horloge + valeur
+			v = (self.horloge % Poids.Cycle) + valeur
 			index = (v // Poids.Periode) % Poids.NBelement
 			collectionSomme.append(v + poids[index])
 				

@@ -71,7 +71,7 @@ def Tableau(M, G):
 	while len(Recherche) > 1:
 		M = Trouve[-1][0]
 		acc = Trouve[-1][1]
-		print("je me trouve en",M,"j'ai accumule",acc, "->" , acc.valeur)
+		print("je me trouve en",M,"j'ai accumule",acc, "->" , acc.valeur, "il est : ", acc.horloge)
 		V = Autour(M, Adj)
 		Placer(M,V,acc)
 
@@ -87,7 +87,7 @@ def Suivis(A,B,L):
 def Visualiser(A,B,G):
 	print("plus court chemin entre {} et {}".format(A,B))
 	Adj = GrapheVersMat(G)
-	g = Graph(engine='sfdp')
+	g = Graph(engine='dot')
 	PCC1 = Chemin(A,B,G)
 	for i in range(len(Adj)):
 		for j in range(i+1,len(Adj)):

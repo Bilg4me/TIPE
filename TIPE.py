@@ -84,10 +84,10 @@ def Suivis(A,B,L):
 	return False
 
 
-def Visualiser(A,B,G):
+def Visualiser(A,B,G,modelView = 'dot'):
 	print("plus court chemin entre {} et {}".format(A,B))
 	Adj = GrapheVersMat(G)
-	g = Graph(engine='dot')
+	g = Graph(engine=modelView)
 	PCC1 = Chemin(A,B,G)
 	for i in range(len(Adj)):
 		for j in range(i+1,len(Adj)):
@@ -120,4 +120,4 @@ def Chemin(A,B,G):
 ## PHASE DE TEST ##
 ###################
 
-Visualiser('A','F', Pays)
+Visualiser('A','Z', Generer(26) , 'circo')

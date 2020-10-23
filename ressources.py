@@ -59,6 +59,7 @@ class Poids:
 			self.couples.append((c,p))
 
 		self.valeur = self.Esperance()
+		self.incertitude = self.Ecart_type()
 
 	# Surcharge des operateurs
 
@@ -113,6 +114,17 @@ class Poids:
 		for (c,p) in self.couples:
 			E += c * p
 		return round(E,2)
+		
+	def Variance(self) :
+		ex2 = 0
+		for (c,p) in self.couples:
+			ex2 += (c ** 2) * p
+		ex2 = round(ex2, 2)
+		
+		return ex2 - (self.valeur ** 2)
+		
+	def Ecart_type(self) :
+		return round(sqrt(self.Variance()),2)
 
 
 def subAlea(x,L):

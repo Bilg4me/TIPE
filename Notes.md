@@ -34,3 +34,13 @@ Prise de décision dans un environnement incertain
 **Critère Probabilistes**
 - Pascal : esperance
 - Markowitz : rajoute le critere de dispersion à la méthode de pas**
+
+
+
+## Interface Graphique
+
+- Première ouverture de fenêtre qui demande le type de graphique souhaité et le nombre de villes
+- Deuxième ouverture de fenêtre qui demande le nom des villes (Ou alors on le fait dans le tableur de la troisième ouverture)
+- Crée / lit un fichier excel à remplir à la main (ouais c'est chiant)
+OU ALORS
+On passe directement du fichier excel au graphe (on doit quand même le remplir)

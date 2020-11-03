@@ -1,16 +1,15 @@
 import xlrd
 import matplotlib.pyplot as plt
 
+
 Adresse = 'M:\Feuille.xlsx'
 document = xlrd.open_workbook(Adresse)
- 
- 
 feuille_1 = document.sheet_by_index(0)
  
 
-
 cols = feuille_1.ncols
 rows = feuille_1.nrows
+
 
 def RécupVilles():
     ListeVilles = []

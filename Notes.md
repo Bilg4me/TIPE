@@ -1,5 +1,9 @@
 # Notes
 
+## TODO
+
+Faire un classe de Poids générale dont PSS,PDD,PDS héritent les uns des autres
+
 ## Thèses - Hizem (Optimisation d'itinéraires dans les réseaux routiers)
 
 Optimisation monocritère
@@ -12,7 +16,7 @@ Optimisation multicrière
  - Approche par agregation de critère : Somme pondérée, Intégrale de Choquet
  - Approche par Pareto dominance
 
-Les Différents types de graphes 
+Les Différents types de graphes
 ---
 - Graphe statique determnistes : poids constants et fixés
 - Graphe statique stochastique : calcul de l'esperance mathématique du poids de chaque arc pour se ramener au cas précédant
@@ -36,9 +40,14 @@ Prise de décision dans un environnement incertain
 - Markowitz : rajoute le critere de dispersion à la méthode de pas**
 
 
-
 ## Interface Graphique
 
+** IDEES **
+- Premiere page : Mode (ferroviaire,routier)
+- Deuxieme page : Type de graphe (PSS,PDD,PDS)
+- Option : (Importer/Exporter format excel, Mode edition (ajout,supression de noeud), Mode visualisation (PCC sans/avec contrainte) )
+
+** Actuellement **
 - Première ouverture de fenêtre qui demande le type de graphique souhaité et le nombre de villes
 - Deuxième ouverture de fenêtre qui demande le nom des villes (Ou alors on le fait dans le tableur de la troisième ouverture)
 - Crée / lit un fichier excel à remplir à la main (ouais c'est chiant)

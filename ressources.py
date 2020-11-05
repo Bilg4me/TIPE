@@ -50,16 +50,29 @@ def Antidoublons(L):
 			A.append(B[k])
 	return A
 
-class Poids:
+TEMPS,FIABILITE = (0,1)
 
+class Poids:
+	
+	mode = TEMPS
+	
 	def __init__(self, COUPLES):
 		self.couples = ([])
 
 		for (c,p) in Antidoublons(COUPLES):
 			self.couples.append((c,p))
-
-		self.valeur = self.Esperance()
+		
+		self.norme = self.Esperance()
 		self.incertitude = self.Ecart_type()
+		self.valeur = (self.norme , self.incertitude) # valuation par priorité (x,y) < (x',y') <=> x < x' et si x = x' on compare sur y
+	
+	def setvaleur(self):
+		self.valeur = (self.norme , self.incertitude)
+		""" On peut choisir le mode de valuation d'un PSS même apres son instanciation
+		On pourrait aussi définir une valuation monocritère en définissant : self.valeur = (self.norme , self.incertitude)[Poids.mode]
+		voire une agregation des critères par somme pondérée
+		"""
+		
 
 	# Surcharge des operateurs
 
@@ -84,15 +97,9 @@ class Poids:
 		return s
 
 	def __lt__(self, w):
-		if isinf(w):
-			return True
-		elif isnan(w):
-			return False
 		return self.valeur < w.valeur
 
 	def __eq__(self, w):
-		if isnan(w):
-			return False
 		return self.valeur == w.valeur
 
 	def __le__(self,w):
@@ -104,8 +111,8 @@ class Poids:
 	def __ge__(self,w):
 		return not (self < w)
 
-	def __float__(self):
-		return float(self.valeur)
+	# def __float__(self):
+		# return float(self.valeur)
 
 	## Fonctions propre
 
@@ -121,7 +128,7 @@ class Poids:
 			ex2 += (c ** 2) * p
 		ex2 = round(ex2, 2)
 		
-		return ex2 - (self.valeur ** 2)
+		return ex2 - (self.Esperance() ** 2)
 		
 	def Ecart_type(self) :
 		return round(sqrt(self.Variance()),2)
@@ -139,8 +146,8 @@ def P():
 	clist = [randint(1,4) for k in range(len(plist))]
 	return Poids(zip(clist,plist))
 
-ZERO = Poids([(0,0)])
-INF = inf
+ZERO = Poids([(0,1)])
+INF = Poids([(inf,1)])
 
 Ville = [
 ('A', [('B', P()),('C', P()), ('D', P())]),

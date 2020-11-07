@@ -1,9 +1,5 @@
 # Notes
 
-## TODO
-
-Faire un classe de Poids générale dont PSS,PDD,PDS héritent les uns des autres
-
 ## Thèses - Hizem (Optimisation d'itinéraires dans les réseaux routiers)
 
 Optimisation monocritère
@@ -42,14 +38,19 @@ Prise de décision dans un environnement incertain
 
 ## Interface Graphique
 
-** IDEES **
+**Idées**
 - Premiere page : Mode (ferroviaire,routier)
 - Deuxieme page : Type de graphe (PSS,PDD,PDS)
 - Option : (Importer/Exporter format excel, Mode edition (ajout,supression de noeud), Mode visualisation (PCC sans/avec contrainte) )
 
-** Actuellement **
+**Actuellement**
 - Première ouverture de fenêtre qui demande le type de graphique souhaité et le nombre de villes
 - Deuxième ouverture de fenêtre qui demande le nom des villes (Ou alors on le fait dans le tableur de la troisième ouverture)
 - Crée / lit un fichier excel à remplir à la main (ouais c'est chiant)
 OU ALORS
 On passe directement du fichier excel au graphe (on doit quand même le remplir)
+
+## Amélioration du code
+- Faire un classe de Poids générale dont PSS,PDD,PDS héritent les uns des autres
+- Utiliser un module d'explotation de données gtfs pour les exporter dans un excel afin de ne pas à remplir un graphe à main nue
+

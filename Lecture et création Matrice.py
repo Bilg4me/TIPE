@@ -2,7 +2,7 @@ import xlrd
 import matplotlib.pyplot as plt
 
 
-Adresse = 'M:\Feuille.xlsx'
+Adresse = 'Feuille.xlsx'
 document = xlrd.open_workbook(Adresse)
 feuille_1 = document.sheet_by_index(0)
  

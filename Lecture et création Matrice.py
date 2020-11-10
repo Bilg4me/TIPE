@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 Adresse = '/Users/mathieutanre/Documents/TIPE/Feuille.xlsx'
 document = xlrd.open_workbook(Adresse)
-AdresseDD = 'M:\TIPE-master\Tableur SS.xlsx'
+AdresseDD = '/Users/mathieutanre/Documents/Tableur SS.xlsx'
+AdresseSD ='/Users/mathieutanre/Documents/Classeur SD.xlsx'
 
 
 Feuille_VillesDS = document.sheet_by_index(0) #Villes et DS
@@ -58,25 +59,24 @@ def CréerMatriceStochastiqueStatique1(): #AKA SS (poids + proba)
 def CréerMatriceStochastiqueStatique2(): #AKA SS (poids + proba)
 
     Classeur_DD = xlrd.open_workbook(AdresseDD)
-    n = len(Classeur_DD.sheet_names) - 1
+    n = len(Classeur_DD.sheet_names()) - 1
     Feuille_Base = Classeur_DD.sheet_by_index(0)
 
-    Matrice = [[ None for i in range(cols)] for i in range(ligne)] ; a = 0 ; b = 1 # a numéro de ligne ; b numéro de colonne
+    Matrice = [[ None for i in range(Feuille_Base.nrows - 1)] for i in range(Feuille_Base.nrows - 1)] ; a = 0 ; b = 1 # a numéro de ligne ; b numéro de colonne
 
     for M in range(1,n+1):
         Feuille = Classeur_DD.sheet_by_index(M)
-        col = Feuille.ncols - 1 ; ligne = Feuille.nrows - 1
+        col = Feuille.ncols - 1
 
-
-        for j in range (0,(col) * ( col - 1) // 2, 2): #Pas de 2 car poids + proba codé sur 2 colonnes
+        for j in range (0, col - 1 , 2): #Pas de 2 car poids + proba codé sur 2 colonnes
             i = 0 ; Poids = []
-            while Feuille.cell_value(rowx=i,colx=j) != 0:  #On s'arrête avant out of range
+            while Feuille.cell_value(rowx=i+1,colx=j+1) != 0:  #On s'arrête avant out of range
                 Poids.append((Feuille.cell_value(rowx=i+1,colx=j+1) , Feuille.cell_value(rowx=i+1,colx=j+2)))
                 i += 1
-            M[a][b] = Poids
-            M[b][a] = M[a][b]
+            Matrice[a][b] = Poids
+            Matrice[b][a] = Matrice[a][b]
             b += 1
-        a += 1
+        a += 1 ; b = a + 1
     return Matrice
 
 
@@ -100,5 +100,33 @@ def CréerMatriceDéterministeDynamique(): #AKA DD (poids + heures)
         else:
             a += 1
             b = a + 1
+    return Matrice
+
+
+def CréerMatriceStochastiqueDynamique(): #AKA SD (le must)
+
+    Classeur_SD = xlrd.open_workbook(AdresseSD)
+    p = len(Classeur_SD.sheet_names()) - 1
+    Feuille_Base = Classeur_SD.sheet_by_index(0)
+    n = Feuille_Base.nrows - 1
+
+    Matrice = [[[ None for i in range(p)] for i in range(n)] for i in range(n)] ; a = 0 ; b = 1 # a numéro de ligne ; b numéro de colonne
+
+    for M in range(1,p+1):
+        Feuille = Classeur_SD.sheet_by_index(M)
+        col = Feuille.ncols - 1
+
+        for j in range (0, col , 2): #Pas de 2 car poids + proba codé sur 2 colonnes
+            i = 0 ; Poids = []
+            while Feuille.cell_value(rowx=i+1,colx=j+1) != 0:  #On s'arrête avant out of range
+                Poids.append((Feuille.cell_value(rowx=i+1,colx=j+1) , Feuille.cell_value(rowx=i+1,colx=j+2)))
+                i += 1
+            Matrice[a][b][M] = Poids
+            Matrice[b][a][M] = Matrice[a][b][M]
+            if b < n - 1:
+                b += 1
+            else:
+                a += 1
+                b = a + 1
     return Matrice
 

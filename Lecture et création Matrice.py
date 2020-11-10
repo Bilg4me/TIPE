@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 
 Adresse = 'M:\Feuille.xlsx'
 document = xlrd.open_workbook(Adresse)
+AdresseDD = 'M:\TIPE-master\Tableur SS.xlsx'
  
  
 Feuille_VillesDS = document.sheet_by_index(0) #Villes et DS
 Feuille_SS = document.sheet_by_index(1) # (Poids,Proba) SS
-Feuille_DD = document.sheet_by_index(2) # Poids en fonction de l'heure DD
 
 
 cols1 = Feuille_VillesDS.ncols
@@ -35,21 +35,27 @@ cols2 = Feuille_SS.ncols
 rows2 = Feuille_SS.nrows
 
 def CréerMatriceStochastiqueStatique(): #AKA SS (poids + proba)
-    Matrice = [[ None for i in range(cols1 - 1)] for i in range(rows1 - 1)] ; a = 0 ; b = 1 # a numéro de ligne ; b numéro de colonne
-    for k in range(len(Matrice)):
-        Matrice[k][k] = None
-    for j in range (0,(cols1 - 1) * ( cols1 - 2) // 2, 2): #Pas de 2 car poids + proba codé sur 2 colonnes 
-        i = 0 ; Poids = []
-        while Feuille_SS.cell_value(rowx=i,colx=j) != 0:  #On s'arrête avant out of range
-            Poids.append((Feuille_SS.cell_value(rowx=i,colx=j) , Feuille_SS.cell_value(rowx=i,colx=j+1)))
-            i += 1
-        Matrice[a][b] = Poids
-        Matrice[b][a] = Matrice[a][b]
-        if b == cols1 :
-            a += 1
-            b = a + 1
-        else:
+
+    Classeur_DD = xlrd.open_workbook(AdresseDD)
+    n = len(Classeur_DD.sheet_names) - 1
+    Feuille_Base = Classeur_DD.sheet_by_index(0)
+
+    Matrice = [[ None for i in range(cols)] for i in range(ligne)] ; a = 0 ; b = 1 # a numéro de ligne ; b numéro de colonne
+    
+    for M in range(1,n+1):
+        Feuille = Classeur_DD.sheet_by_index(M)
+        col = Feuille.ncols - 1 ; ligne = Feuille.nrows - 1
+        
+        
+        for j in range (0,(col) * ( col - 1) // 2, 2): #Pas de 2 car poids + proba codé sur 2 colonnes 
+            i = 0 ; Poids = []
+            while Feuille.cell_value(rowx=i,colx=j) != 0:  #On s'arrête avant out of range
+                Poids.append((Feuille.cell_value(rowx=i+1,colx=j+1) , Feuille.cell_value(rowx=i+1,colx=j+2)))
+                i += 1
+            M[a][b] = Poids
+            M[b][a] = M[a][b]
             b += 1
+        a += 1
     return Matrice
         
         

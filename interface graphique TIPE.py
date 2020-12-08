@@ -30,3 +30,4 @@ bouton_valider.pack()
 
 fenetre.mainloop()
 
+#Turbo support: https://likegeeks.com/python-gui-examples-tkinter-tutorial/

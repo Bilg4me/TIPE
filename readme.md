@@ -5,6 +5,7 @@
 - Optimisation en temps et/ou en distance d’un trajet entre deux points
 - Capacité à s’adapter à des perturbation sur un trajet (route barrée, mobile entrant dans le circuit)
 
+- [Crowdsourcing](https://fr.wikipedia.org/wiki/Production_participative)
 - [PathFinding](https://fr.wikipedia.org/wiki/Recherche_de_chemin)
 - [PCC avec poids dynamique](https://fr.wikipedia.org/wiki/Probl%C3%A8me_de_plus_court_chemin#Plus_court_chemin_pour_des_poids_dynamiques)
 - [Metro et réseaux](https://images.math.cnrs.fr/+Plans-de-metro-et-reseaux+?lang=fr)
@@ -23,6 +24,8 @@ Méthode primales pour resoudre le pb du plus court chemin avec contraintes de r
 ## Documentations
 
 [Documentation Tkinter](http://tkinter.fdex.eu/doc/bw.html)
+
+[Cheat Sheet Tkinter](https://python.doctor/page-tkinter-interface-graphique-python-tutoriel)
 
 [Documentation Graphviz](https://graphviz.readthedocs.io/en/stable/manual.html)
 

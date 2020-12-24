@@ -5,12 +5,20 @@ from PIL import ImageTk
 
 G = [[],[]]
 
-def setPoids():
-	#se charge d'affecter un poids à un arc en fonction du type de graphe choisi
-	return None
+def setPoids(A,B):
+	if not (A in G[0] and B in G[0]):
+		raise Exception("Désolé, cet arc ne peut etre construit")
+	fenetre = Tk()
+	fenetre.geometry("300x300")
+	def definew(w):
+		G[1].append( [A,B,w] )
+	s = Spinbox(fenetre, from_=0, to=10)
+	s.pack()
+	Button(fenetre,text="definir", command= lambda : definew(s.get()) ).pack()
+	
 
-def setName():
-	#se charge d'affecter un poids à un arc en fonction du type de graphe choisi
+def setName(node):
+	G[0][node] = "changé"
 	return None
 
 def FenetreMode():
@@ -91,65 +99,57 @@ def FenetreModelisation(mode, typeGraphe):
 	# ajout/suppression de noeuds et arc
 
 	def ajoutNoeuds():
-		def rentrerNoeuds(nb):
-			def ajouterlesnoeudsaugraphe(entrees):
+		def rentrerNoeuds(window, nb):
+			window.destroy()
+			def ajouterlesnoeudsaugraphe(window, entrees):
 				for v in entrees:
 					G[0].append(v.get())
-			
+				window.destroy()
+
 			fenetre = Tk()
 			fenetre.geometry('300x300')
 			LesEntrées = []
 			for k in range(nb):
-				Label(fenetre, text="Noueud n°{}".format(k+1), bg="yellow").pack()
+				Label(fenetre, text="Noeud n°{}".format(k+1), bg="yellow").pack()
 				LesEntrées.append( Entry(fenetre, width=30) )
 				LesEntrées[-1].pack()
-				
-			Button(fenetre,text="Valider",command = lambda : ajouterlesnoeudsaugraphe(LesEntrées)).pack()
-				
-			
+
+			Button(fenetre,text="Valider",command = lambda : ajouterlesnoeudsaugraphe(fenetre,LesEntrées)).pack()
+
 		fenetre = Tk()
-		fenetre.geometry('300x300')
+		fenetre.geometry('500x500')
 		nb_noeuds = Label(fenetre, text="Combien de noeuds souhaitez-vous ajouter dans le graphe ?")
 		nb_noeuds.place(x = 30 , y = 140)
-		
+
 		ligne_noeuds = Spinbox(fenetre, from_=0, to=30)
 		ligne_noeuds.place(x = 0 , y = 0)
-		Button(fenetre, text="choisir", command= lambda : rentrerNoeuds(int(ligne_noeuds.get())) ).pack()
+		Button(fenetre, text="choisir", command= lambda : rentrerNoeuds(fenetre, int(ligne_noeuds.get()))).pack()
 		fenetre.mainloop()
 
 	def supprimeNoeuds(listeDesNoeuds):
+		nonvoulus = []
 		fenetre = Tk()
 		fenetre.geometry('300x300')
-		listeDesBoutons = [ Checkbutton(fenetre, text= noeuds) for noeuds in listeDesNoeuds ]
-		for checkbox in listeDesBoutons:
-			checkbox.pack()
-
-		Button(fenetre, text="Supprimer", bg = "red" , fg = "white", command = alert).pack(side = BOTTOM)
+		for noeuds in listeDesNoeuds:
+			Checkbutton(fenetre, text=noeuds).pack()
+		Button(fenetre, text="Supprimer", bg = "red" , fg = "white", command = fenetre.destroy).pack(side = BOTTOM)
 		fenetre.mainloop()
 
 	def ajoutArcs(listeDesNoeuds):
 		fenetre = Tk()
 		fenetre.geometry('300x300')
-
-		départ = LabelFrame(fenetre, text="Départ", padx=20, pady=20)
-		départ.pack(fill="y", expand="yes", side = LEFT)
-
-		listeDesDeparts = Listbox(départ)
-		for noeuds in listeDesNoeuds:
-			listeDesDeparts.insert(1,noeuds)
-
-		listeDesDeparts.pack()
-
-		arrivée = LabelFrame(fenetre, text="Arrivée", padx=20, pady=20)
-		arrivée.pack(fill="y", expand="yes", side = RIGHT)
-
-		listeDesArrivées = Listbox(arrivée)
-		for noeuds in listeDesNoeuds:
-			listeDesArrivées.insert(1,noeuds)
-
-		listeDesArrivées.pack()
-
-		Button(fenetre, text="Set poids", command= setPoids).pack()
+		
+		Label(fenetre, text="depart").pack()
+		
+		pointdepart = Entry(fenetre)
+		pointdepart.pack()
+		
+		Label(fenetre, text="arrive").pack()
+		
+		pointarrivee = Entry(fenetre)
+		pointarrivee.pack()
+			
+		Button(fenetre, text="Set poids", command= lambda : setPoids(pointdepart.get(), pointarrivee.get())).pack()
 
 		fenetre.mainloop()
 
@@ -171,7 +171,7 @@ def FenetreModelisation(mode, typeGraphe):
 			for noeuds in listeDesNoeuds:
 				liste.insert(1,noeuds)
 			liste.pack()
-			Button(fenetre2, text="Modifier le nom du sommet", command=setName).pack()
+			Button(fenetre2, text="Modifier le nom du sommet", command= lambda : setName(liste.curselection()[0])).pack()
 
 
 		def changePoidsArc(listeDesArcs):
@@ -182,7 +182,7 @@ def FenetreModelisation(mode, typeGraphe):
 				liste.insert(1,arc)
 			liste.pack()
 
-			Button(fenetre2, text="Modifier le poids de cet arc", command=setPoids).pack()
+			Button(fenetre2, text="Modifier le poids de cet arc").pack()
 
 		# menu des modifications
 		fenetre = Tk()
@@ -201,10 +201,10 @@ def FenetreModelisation(mode, typeGraphe):
 	Label(editeur, text = "mode : {} avec un type de graphe : {} ".format(mode,typeGraphe) ).pack()
 
 	Button(editeur, text="Ajouter noeuds", bg = "green" , fg = "black", command = ajoutNoeuds).pack()
-	Button(editeur, text="Supprimer noeuds", bg = "green" , fg = "black", command = lambda : supprimeNoeuds(['a','b','c','d','e']) ).pack()
-	Button(editeur, text="Ajouter arcs", bg = "green" , fg = "black", command = lambda : ajoutArcs(['a','b','c','d','e'])).pack()
-	Button(editeur, text="Supprimer arcs", bg = "green" , fg = "black", command = lambda : supprimeArcs([ 'a-b', 'a-c', 'a-d', 'b-c', 'b-d'])).pack()
-	Button(editeur, text="Modifier arc", bg = "green" , fg = "black", command = lambda : modifierArc(['a','b','c','d','e'],[ 'a-b', 'a-c', 'a-d', 'b-c', 'b-d']) ).pack()
+	Button(editeur, text="Supprimer noeuds", bg = "green" , fg = "black", command = lambda : supprimeNoeuds(G[0]) ).pack()
+	Button(editeur, text="Ajouter arcs", bg = "green" , fg = "black", command = lambda : ajoutArcs(G[0])).pack()
+	Button(editeur, text="Supprimer arcs", bg = "green" , fg = "black", command = lambda : supprimeArcs(G[1])).pack()
+	Button(editeur, text="Modifier arc", bg = "green" , fg = "black", command = lambda : modifierArc(G[0],G[1]) ).pack()
 	Button(editeur, text="Aperçu", bg = "blue" , fg = "white", command = previsualiser).pack(side = BOTTOM)
 
 	if mode == "Ferro":

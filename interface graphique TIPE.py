@@ -104,12 +104,15 @@ def FenetreModelisation(mode, typeGraphe):
 
 	# ajout/suppression de noeuds et arc
 
-	def ajoutNoeuds():
+	def ajoutNoeuds(modeLigne = False):
 		def rentrerNoeuds(window, nb):
 			window.destroy()
 			def ajouterlesnoeudsaugraphe(window, entrees):
-				for v in entrees:
-					G.ajouter_sommet(v.get())
+				for e in entrees:
+					G.ajouter_sommet(e.get())
+				if modeLigne :
+					for k in range(len(G.sommets)-1, len(G.sommets) - nb, -1):
+						G.ajouter_arc(G[k],G[k-1],Poids(1))
 				window.destroy()
 
 			fenetre = Tk()
@@ -207,7 +210,7 @@ def FenetreModelisation(mode, typeGraphe):
 	editeur.pack(fill="y", expand="no", side = LEFT)
 
 	fenetre.title("mode : {} avec un type de graphe : {} ".format(mode,typeGraphe))
-	
+
 	#cas des graphes Dynamiques
 	periode = None
 	cycle = None
@@ -234,7 +237,9 @@ def FenetreModelisation(mode, typeGraphe):
 	Button(editeur, text="Modifier arc", bg = "green" , fg = "black", command = lambda : modifierArc(G.sommets,G.arcs) ).pack()
 
 	if mode == "Ferro":
-		Button(editeur, text="Créer ligne", bg = "green" , fg = "black", command = alert).pack()
+		def ligne_ferroviaire():
+			ajoutNoeuds(modeLigne = True)
+		Button(editeur, text="Créer ligne", bg = "green" , fg = "black", command = ligne_ferroviaire).pack()
 
 	# Cadre aperçu du graphe
 
@@ -246,4 +251,64 @@ def FenetreModelisation(mode, typeGraphe):
 	fenetre.mainloop()
 
 # Phase de tests
-FenetreMode()
+
+def define_poids_statique(stochastique = True):
+	fenetre = Tk()
+	fenetre.geometry('600x600')
+	if stochastique:
+		Label(fenetre, text="Combien d'issues possibles ? ").pack()
+		s = Spinbox(fenetre, from_=0, to=10)
+		s.pack()
+
+		def creerstochastique(window,nb):
+			window.destroy()
+			fenetre = Tk()
+			fenetre.geometry('600x600')
+			valeurs = LabelFrame(fenetre, text="valeurs")
+			valeurs.pack(fill="y", expand="no", side = LEFT)
+			probas = LabelFrame(fenetre, text="probas")
+			probas.pack(fill="y", expand="no", side = RIGHT)
+			for k in range(nb):
+				Spinbox(probas, from_=0, to=1, increment=0.1).pack()
+				Spinbox(valeurs, from_=0, to=10).pack()
+			Button(fenetre, text="Valider").pack()
+
+		Button(fenetre, text="Valider", command= lambda : creerstochastique(fenetre, int(s.get()))).pack()
+	else:
+		Label(fenetre, text="Valeur du poids deterministe statique ? ").pack()
+		s = Spinbox(fenetre, from_=0, to=10)
+		s.pack()
+		Button(fenetre, text="Valider").pack()
+		
+def define_poids_dynamique(cycle, periode, stochastique = True):
+	fenetre = Tk()
+	fenetre.geometry('600x600')
+	elements = cycle // periode
+	
+	if stochastique:
+		Label(fenetre, text="Combien d'issues possibles ? ").pack()
+		s = Spinbox(fenetre, from_=0, to=10)
+		s.pack()
+
+		def creerstochastique(window,nb):
+			window.destroy()
+			fenetre = Tk()
+			fenetre.geometry('600x600')
+			valeurs = LabelFrame(fenetre, text="valeurs")
+			valeurs.pack(fill="y", expand="no", side = LEFT)
+			probas = LabelFrame(fenetre, text="probas")
+			probas.pack(fill="y", expand="no", side = RIGHT)
+			for k in range(nb):
+				Spinbox(probas, from_=0, to=1, increment=0.1).pack()
+				Spinbox(valeurs, from_=0, to=10).pack()
+			Button(fenetre, text="Valider").pack()
+
+		Button(fenetre, text="Valider", command= lambda : creerstochastique(fenetre, int(s.get()))).pack()
+	else:
+		for k in range(elements):
+			Label(fenetre, text="Valeur du poids sur la {}e periode ? ".format(k+1)).pack()
+			Spinbox(fenetre, from_=0, to=10).pack()
+			
+		Button(fenetre, text="Valider").pack()
+		
+		

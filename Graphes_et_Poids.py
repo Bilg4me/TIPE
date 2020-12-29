@@ -72,7 +72,29 @@ class Graphe:
 
 	def supprimer_sommet(self, S):
 		self.sommets.remove(S)
-		# TODO: Supprimer les arc ou S est impliqué
+		for arc in self.arcs:
+			if S in arc:
+				self.supprimer_arc(arc)
+	
+	def modifier_sommet(self, old, new):
+		
+		# on suppose que old est dans les sommets du graphe
+		
+		i = self.sommets.index(old)
+		self.sommets[i] = new
+		
+		#on remplace old par new dans tous les arcs ou il est impliqué
+		
+		for arc in self.arcs:
+			if old == arc.origine:
+				i = self.arcs.index(arc)
+				self.arcs[i].origine = new
+			elif old == arc.destination:
+				i = self.arcs.index(arc)
+				self.arcs[i].destination = new
+		
+		self.recharger()
+			
 
 	def ajouter_arc(self, O,D,p):
 		# TODO: verifier si les sommets de l'arc sont dans le graphe et sinon les ajouter au graphe
@@ -122,7 +144,4 @@ class Graphe:
 
 		g.render("Graphe.gv")
 
-
-
-
-G = Graphe(['a','b','c'],[Arc('a','b',Poids(5) ), Arc('a','c',Poids(7) )], Poids)
+G = Graphe(['a','b'],[],Poids)

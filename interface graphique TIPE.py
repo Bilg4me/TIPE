@@ -6,22 +6,97 @@ from PIL import ImageTk
 
 G = Graphe([],[],Poids)
 
+def define_poids_statique(stochastique = True):
+	fenetre = Toplevel()
+	fenetre.geometry('600x600')
+	if stochastique:
+		Label(fenetre, text="Combien d'issues possibles ? ").pack()
+		s = Spinbox(fenetre, from_=0, to=10)
+		s.pack()
+
+		def creerstochastique(window,nb):
+			window.destroy()
+			fenetre = Toplevel()
+			fenetre.geometry('600x600')
+			valeurs = LabelFrame(fenetre, text="valeurs")
+			valeurs.pack(fill="y", expand="no", side = LEFT)
+			probas = LabelFrame(fenetre, text="probas")
+			probas.pack(fill="y", expand="no", side = RIGHT)
+			for k in range(nb):
+				Spinbox(probas, from_=0, to=1, increment=0.1).pack()
+				Spinbox(valeurs, from_=0, to=10).pack()
+			Button(fenetre, text="Valider").pack()
+
+		Button(fenetre, text="Valider", command= lambda : creerstochastique(fenetre, int(s.get()))).pack()
+	else:
+		Label(fenetre, text="Valeur du poids deterministe statique ? ").pack()
+		s = Spinbox(fenetre, from_=0, to=10)
+		s.pack()
+		Button(fenetre, text="Valider").pack()
+
+def define_poids_dynamique(cycle, periode, stochastique = True):
+	fenetre = Toplevel()
+	fenetre.geometry('600x600')
+	elements = cycle // periode
+
+	if stochastique:
+		def creerstochastique(nb):
+			fenetre = Toplevel()
+			fenetre.geometry('600x600')
+			valeurs = LabelFrame(fenetre, text="valeurs")
+			valeurs.pack(fill="y", expand="no", side = LEFT)
+			probas = LabelFrame(fenetre, text="probas")
+			probas.pack(fill="y", expand="no", side = RIGHT)
+			for k in range(nb):
+				Spinbox(probas, from_=0, to=1, increment=0.1).pack()
+				Spinbox(valeurs, from_=0, to=10).pack()
+			Button(fenetre, text="Valider").pack()
+
+		for k in range(elements):
+			Label(fenetre, text="Combien d'issues possibles pour la {}e periode ? ".format(k+1)).pack()
+			s = Spinbox(fenetre, from_=0, to=10)
+			s.pack()
+			Button(fenetre, text="Valider", command= lambda : creerstochastique(int(s.get()))).pack()
+
+	else:
+		for k in range(elements):
+			Label(fenetre, text="Valeur du poids sur la {}e periode ? ".format(k+1)).pack()
+			Spinbox(fenetre, from_=0, to=10).pack()
+
+		Button(fenetre, text="Valider").pack()
+
 def setPoids(window, A,B):
+	
 	if not (A in G and B in G):
 		raise Exception("Désolé, cet arc ne peut être construit")
+	
+	if typeGraphe == 'DS':
+		define_poids_statique(False)
+	elif typeGraphe == 'DD':
+		define_poids_dynamique(cycle,periode, False)
+	elif typeGraphe == 'SD':
+		define_poids_dynamique(cycle,periode)
+	else: # typeGraphe == 'SS':
+		define_poids_statique()
+		
+		
+	
 	window.destroy()
-	fenetre = Tk()
-	fenetre.geometry("300x300")
-	def definew(w):
-		G.ajouter_arc(A,B,Poids(w))
-		fenetre.destroy()
-	s = Spinbox(fenetre, from_=0, to=10)
-	s.pack()
-	Button(fenetre,text="definir", command= lambda : definew(s.get()) ).pack()
+	
 
-def setName(node):
-	G.sommets[node] = "changé"
-	return None
+def setName(window, sommet):
+	window.destroy()
+	fenetre = Toplevel()
+	fenetre.geometry('300x300')
+	Label(fenetre, text="Nouveau nom : ").pack()
+	nouveauNom = Entry(fenetre)
+	nouveauNom.pack()
+	def modifiersommetdugraphe():
+		G.modifier_sommet(sommet.get(), nouveauNom.get())
+		fenetre.destroy()
+
+	Button(fenetre, text="valider", command = modifiersommetdugraphe).pack()
+
 
 def FenetreMode():
 	fenetre = Tk()
@@ -58,13 +133,15 @@ def FenetreTypeGraphe(mode, window):
     bouton_valider = Button(fenetre, text="Valider", bg = "green" , fg = "black", command = Valider)
     bouton_valider.place(x = 150 , y = 180)
 
-def FenetreModelisation(mode, typeGraphe):
+def FenetreModelisation(mode, typedeGraphe):
 	fenetre = Tk()
 	fenetre.geometry('800x600')
-
+	global typeGraphe
+	typeGraphe = typedeGraphe
+	
 	def alert():
 		return None
-
+	
 	# Menu
 	menubar = Menu(fenetre)
 
@@ -136,64 +213,96 @@ def FenetreModelisation(mode, typeGraphe):
 		fenetre.mainloop()
 
 	def supprimeNoeuds(listeDesNoeuds):
-		nonvoulus = []
-		fenetre = Tk()
+		fenetre = Toplevel()
+		# askip le probleme venait du fait qu'on ne peux cumuler plusieurs instance de Tk() donc pour le résoudre on utilise un toplevel
 		fenetre.geometry('300x300')
-		for noeuds in listeDesNoeuds:
-			Checkbutton(fenetre, text=noeuds).pack()
-		Button(fenetre, text="Supprimer", bg = "red" , fg = "white", command = fenetre.destroy).pack(side = BOTTOM)
+		n = len(listeDesNoeuds)
+		V = [IntVar() for i in range(n)]
+		L = [Checkbutton(fenetre, text=str(listeDesNoeuds[i]), variable = V[i], onvalue=1, offvalue=0) for i in range(n)]
+		for cb in L:
+			cb.pack()
+		def recupNonVoulus():
+			NonVoulus = [ G[i] for i in range(n) if V[i].get() == 1 ]
+			for s in NonVoulus:
+				G.supprimer_sommet(s)
+			fenetre.destroy()
+
+		Button(fenetre, text="Supprimer", bg = "red" , fg = "white", command = recupNonVoulus).pack(side = BOTTOM)
 		fenetre.mainloop()
 
 	# Ajouts, suppression arcs
 
 	def ajoutArcs(listeDesNoeuds):
-		fenetre = Tk()
+		n = len(listeDesNoeuds)
+		fenetre = Toplevel()
 		fenetre.geometry('300x300')
 
-		Label(fenetre, text="depart").pack()
+		cadresDesDéparts = LabelFrame(fenetre, text="depart")
+		cadresDesDéparts.pack(side = LEFT)
 
-		pointdepart = Entry(fenetre)
-		pointdepart.pack()
+		depart = StringVar()
+		pointsdeparts = [ Radiobutton(cadresDesDéparts, text=G[i], variable=depart, value=G[i]) for i in range(n) ]
+		for rb in pointsdeparts:
+			rb.pack()
 
-		Label(fenetre, text="arrive").pack()
+		cadresDesArrives = LabelFrame(fenetre, text="arrive")
+		cadresDesArrives.pack(side = RIGHT)
 
-		pointarrivee = Entry(fenetre)
-		pointarrivee.pack()
+		arrive = StringVar()
+		pointsarrives = [ Radiobutton(cadresDesArrives, text=G[i], variable=arrive, value=G[i]) for i in range(n) ]
+		for rb in pointsarrives:
+			rb.pack()
 
-		Button(fenetre, text="Set poids", command= lambda : setPoids(fenetre, pointdepart.get(), pointarrivee.get())).pack()
+		Button(fenetre, text="Set poids", command= lambda : setPoids(fenetre, depart.get(), arrive.get())).pack()
 
 		fenetre.mainloop()
 
 	def supprimeArcs(listeDesArcs):
-		fenetre = Tk()
+		fenetre = Toplevel()
+		# askip le probleme venait du fait qu'on ne peux cumuler plusieurs instance de Tk() donc pour le résoudre on utilise un toplevel
 		fenetre.geometry('300x300')
+		n = len(listeDesArcs)
+		V = [IntVar() for i in range(n)]
+		L = [Checkbutton(fenetre, text=str(listeDesArcs[i]), variable = V[i], onvalue=1, offvalue=0) for i in range(n)]
+		
+		for cb in L:
+			cb.pack()
+		def recupNonVoulus():
+			NonVoulus = [ G.arcs[i] for i in range(n) if V[i].get() == 1 ]
+			for a in NonVoulus:
+				G.supprimer_arc(a)
+			fenetre.destroy()
 
-		listeDesBoutons = [ Checkbutton(fenetre, text=str(arcs)) for arcs in listeDesArcs ]
-		for checkbox in listeDesBoutons:
-			checkbox.pack()
-
-		Button(fenetre, text="Supprimer", bg = "red" , fg = "white", command = alert).pack(side = BOTTOM)
+		Button(fenetre, text="Supprimer", bg = "red" , fg = "white", command = recupNonVoulus).pack(side = BOTTOM)
 		fenetre.mainloop()
 
-	def modifierArc(listeDesNoeuds,listeDesArcs):
+	def modifier(listeDesNoeuds,listeDesArcs):
 		def changeSommet(listeDesNoeuds):
-			fenetre2 = Tk()
+			fenetre2 = Toplevel()
 			fenetre2.geometry('300x300')
-			liste = Listbox(fenetre2)
-			for noeuds in listeDesNoeuds:
-				liste.insert(1,noeuds)
-			liste.pack()
-			Button(fenetre2, text="Modifier le nom du sommet", command= lambda : setName(liste.curselection()[0])).pack()
+			n = len(listeDesNoeuds)
+
+			sommetchangé = StringVar()
+			pointsdeparts = [ Radiobutton(fenetre2, text=G[i], variable=sommetchangé, value=G[i]) for i in range(n) ]
+
+			for rb in pointsdeparts:
+				rb.pack()
+
+			Button(fenetre2, text="Modifier le nom du sommet", command = lambda : setName(fenetre2, sommetchangé)).pack()
 
 		def changePoidsArc(listeDesArcs):
-			fenetre2 = Tk()
+			
+			fenetre2 = Toplevel()
 			fenetre2.geometry('300x300')
-			liste = Listbox(fenetre2)
-			for arc in listeDesArcs:
-				liste.insert(1,arc)
-			liste.pack()
+			n = len(listeDesArcs)
 
-			Button(fenetre2, text="Modifier le poids de cet arc").pack()
+			arcchangé = StringVar()
+			arcsModifiables = [Radiobutton(fenetre2, text=G.arcs[i], variable=arcchangé, value=str(G.arcs[i])) for i in range(n)]
+
+			for rb in arcsModifiables:
+				rb.pack()
+
+			Button(fenetre2, text="Modifier le poids de cet arc", command = setPoids(fenetre2, arcchangé.get()[0], arcchangé.get()[-1])).pack()
 
 		# menu des modifications
 		fenetre = Tk()
@@ -212,10 +321,10 @@ def FenetreModelisation(mode, typeGraphe):
 	fenetre.title("mode : {} avec un type de graphe : {} ".format(mode,typeGraphe))
 
 	#cas des graphes Dynamiques
-	periode = None
-	cycle = None
+	
+
 	if typeGraphe[-1] == 'D':
-		parametresDynamique = Tk()
+		parametresDynamique = Toplevel()
 		parametresDynamique.geometry('400x400')
 		Label(parametresDynamique,text = " Définir la durée d'une période ", bg = "black" , fg = "white").pack()
 		periodeEntree = Entry(parametresDynamique)
@@ -224,6 +333,7 @@ def FenetreModelisation(mode, typeGraphe):
 		nbdeperiodeEntree = Entry(parametresDynamique)
 		nbdeperiodeEntree.pack()
 		def recupererParametreDynamique():
+			global periode, cycle
 			periode = int(periodeEntree.get())
 			cycle = periode * int(nbdeperiodeEntree.get())
 			parametresDynamique.destroy()
@@ -234,7 +344,7 @@ def FenetreModelisation(mode, typeGraphe):
 	Button(editeur, text="Supprimer noeuds", bg = "green" , fg = "black", command = lambda : supprimeNoeuds(G.sommets) ).pack()
 	Button(editeur, text="Ajouter arcs", bg = "green" , fg = "black", command = lambda : ajoutArcs(G.sommets)).pack()
 	Button(editeur, text="Supprimer arcs", bg = "green" , fg = "black", command = lambda : supprimeArcs(G.arcs)).pack()
-	Button(editeur, text="Modifier arc", bg = "green" , fg = "black", command = lambda : modifierArc(G.sommets,G.arcs) ).pack()
+	Button(editeur, text="Modifications", bg = "green" , fg = "black", command = lambda : modifier(G.sommets,G.arcs) ).pack()
 
 	if mode == "Ferro":
 		def ligne_ferroviaire():
@@ -252,63 +362,5 @@ def FenetreModelisation(mode, typeGraphe):
 
 # Phase de tests
 
-def define_poids_statique(stochastique = True):
-	fenetre = Tk()
-	fenetre.geometry('600x600')
-	if stochastique:
-		Label(fenetre, text="Combien d'issues possibles ? ").pack()
-		s = Spinbox(fenetre, from_=0, to=10)
-		s.pack()
 
-		def creerstochastique(window,nb):
-			window.destroy()
-			fenetre = Tk()
-			fenetre.geometry('600x600')
-			valeurs = LabelFrame(fenetre, text="valeurs")
-			valeurs.pack(fill="y", expand="no", side = LEFT)
-			probas = LabelFrame(fenetre, text="probas")
-			probas.pack(fill="y", expand="no", side = RIGHT)
-			for k in range(nb):
-				Spinbox(probas, from_=0, to=1, increment=0.1).pack()
-				Spinbox(valeurs, from_=0, to=10).pack()
-			Button(fenetre, text="Valider").pack()
-
-		Button(fenetre, text="Valider", command= lambda : creerstochastique(fenetre, int(s.get()))).pack()
-	else:
-		Label(fenetre, text="Valeur du poids deterministe statique ? ").pack()
-		s = Spinbox(fenetre, from_=0, to=10)
-		s.pack()
-		Button(fenetre, text="Valider").pack()
-		
-def define_poids_dynamique(cycle, periode, stochastique = True):
-	fenetre = Tk()
-	fenetre.geometry('600x600')
-	elements = cycle // periode
-	
-	if stochastique:
-		Label(fenetre, text="Combien d'issues possibles ? ").pack()
-		s = Spinbox(fenetre, from_=0, to=10)
-		s.pack()
-
-		def creerstochastique(window,nb):
-			window.destroy()
-			fenetre = Tk()
-			fenetre.geometry('600x600')
-			valeurs = LabelFrame(fenetre, text="valeurs")
-			valeurs.pack(fill="y", expand="no", side = LEFT)
-			probas = LabelFrame(fenetre, text="probas")
-			probas.pack(fill="y", expand="no", side = RIGHT)
-			for k in range(nb):
-				Spinbox(probas, from_=0, to=1, increment=0.1).pack()
-				Spinbox(valeurs, from_=0, to=10).pack()
-			Button(fenetre, text="Valider").pack()
-
-		Button(fenetre, text="Valider", command= lambda : creerstochastique(fenetre, int(s.get()))).pack()
-	else:
-		for k in range(elements):
-			Label(fenetre, text="Valeur du poids sur la {}e periode ? ".format(k+1)).pack()
-			Spinbox(fenetre, from_=0, to=10).pack()
-			
-		Button(fenetre, text="Valider").pack()
-		
-		
+FenetreMode()

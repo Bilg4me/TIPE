@@ -1,6 +1,5 @@
 from math import inf
-from random import randint
-from graphviz import Graph
+from graphviz import Digraph
 
 # ================ Classe des Poids ================ #
 
@@ -24,11 +23,8 @@ class Poids:
 	def __str__(self):
 		return "{0}".format(self.valeur)
 
-P = lambda : Poids(randint(1,6)) # création d'un poids de valeur aléatoire
-
-
+# TODO : Faire la vairable de classe Poids.ZERO et Poids.INF
 # TODO : Construire les poids en les faisant hériter de cette structure
-
 
 # =============== Classe des Graphes =============== #
 
@@ -136,12 +132,11 @@ class Graphe:
 	
 	def Visualisation(self ,modelView = 'sfdp'):
 		Adj = self.matrice
-		g = Graph(engine=modelView, format = 'png')
+		g = Digraph(engine=modelView, format = 'png')
 		for i in range(len(Adj)):
 			for j in range(len(Adj)):
 				if Adj[i][j] != self.INF:
-					g.edge(self.sommets[j] , self.sommets[i] ,label = str(Adj[i][j]) , color='black')
+					g.edge(self.sommets[i] , self.sommets[j] ,label = str(Adj[i][j]) , color='black')
 
 		g.render("Graphe.gv")
-
-G = Graphe(['a','b'],[],Poids)
+	

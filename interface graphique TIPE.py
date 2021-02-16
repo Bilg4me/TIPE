@@ -1,12 +1,12 @@
 from tkinter import *
-from Graphes_et_Poids import *
+from Algorithme import *
 from PIL import ImageTk
 
 # Graphe
 
 G = Graphe([],[],Poids)
 
-def define_poids_statique(stochastique = True):
+def define_poids_statique(A,B, stochastique = True):
 	fenetre = Toplevel()
 	fenetre.geometry('600x600')
 	if stochastique:
@@ -32,7 +32,10 @@ def define_poids_statique(stochastique = True):
 		Label(fenetre, text="Valeur du poids deterministe statique ? ").pack()
 		s = Spinbox(fenetre, from_=0, to=10)
 		s.pack()
-		Button(fenetre, text="Valider").pack()
+		def rentrerPoids():
+			G.ajouter_arc(A,B,Poids(int(s.get())))
+			fenetre.destroy()
+		Button(fenetre, text="Valider", command=rentrerPoids).pack()
 
 def define_poids_dynamique(cycle, periode, stochastique = True):
 	fenetre = Toplevel()
@@ -71,7 +74,7 @@ def setPoids(window, A,B):
 		raise Exception("Désolé, cet arc ne peut être construit")
 	
 	if typeGraphe == 'DS':
-		define_poids_statique(False)
+		define_poids_statique(A,B,False)
 	elif typeGraphe == 'DD':
 		define_poids_dynamique(cycle,periode, False)
 	elif typeGraphe == 'SD':
@@ -82,7 +85,6 @@ def setPoids(window, A,B):
 		
 	
 	window.destroy()
-	
 
 def setName(window, sommet):
 	window.destroy()
@@ -96,7 +98,6 @@ def setName(window, sommet):
 		fenetre.destroy()
 
 	Button(fenetre, text="valider", command = modifiersommetdugraphe).pack()
-
 
 def FenetreMode():
 	fenetre = Tk()
@@ -171,8 +172,44 @@ def FenetreModelisation(mode, typedeGraphe):
 	def previsualiser(frame):
 		for widget in frame.winfo_children():
 			widget.destroy()
-
+		
 		G.Visualisation()
+		photo = ImageTk.PhotoImage(file="Graphe.gv.png")
+		canvas = Canvas(apercu,width=100, height=500)
+		canvas.create_image(0, 0, anchor=NW, image=photo)
+		canvas.image = photo
+		canvas.pack(fill="both", expand=True)
+	
+	def pcc(frame):
+		n = len(G.sommets)
+		fenetre = Toplevel()
+		fenetre.geometry('300x300')
+
+		cadresDesDéparts = LabelFrame(fenetre, text="depart")
+		cadresDesDéparts.pack(side = LEFT)
+
+		depart = StringVar()
+		pointsdeparts = [ Radiobutton(cadresDesDéparts, text=G[i], variable=depart, value=G[i]) for i in range(n) ]
+		for rb in pointsdeparts:
+			rb.pack()
+
+		cadresDesArrives = LabelFrame(fenetre, text="arrive")
+		cadresDesArrives.pack(side = RIGHT)
+
+		arrive = StringVar()
+		pointsarrives = [ Radiobutton(cadresDesArrives, text=G[i], variable=arrive, value=G[i]) for i in range(n) ]
+		for rb in pointsarrives:
+			rb.pack()
+
+		Button(fenetre, text="Calculer le PCC", command = lambda : afficherpcc(depart.get(), arrive.get(),G,frame)).pack()
+
+		fenetre.mainloop()
+	
+	def afficherpcc(A,B,G,frame):
+		for widget in frame.winfo_children():
+			widget.destroy()
+		
+		Visualiser(A,B,G)
 		photo = ImageTk.PhotoImage(file="Graphe.gv.png")
 		canvas = Canvas(apercu,width=100, height=500)
 		canvas.create_image(0, 0, anchor=NW, image=photo)
@@ -320,8 +357,7 @@ def FenetreModelisation(mode, typedeGraphe):
 
 	fenetre.title("mode : {} avec un type de graphe : {} ".format(mode,typeGraphe))
 
-	#cas des graphes Dynamiques
-	
+	# cas des graphes Dynamiques
 
 	if typeGraphe[-1] == 'D':
 		parametresDynamique = Toplevel()
@@ -355,12 +391,13 @@ def FenetreModelisation(mode, typedeGraphe):
 
 	apercu = LabelFrame(fenetre, text="Aperçu", padx=20, pady=20)
 	apercu.pack(fill="both", expand=True, side = RIGHT)
-
+	# Boutons d'aperçu et de PCC
+	
+	Button(editeur, text="PCC", bg = "red" , fg = "white", command = lambda: pcc(apercu) ).pack(side = BOTTOM)
 	Button(editeur, text="Aperçu", bg = "blue" , fg = "white", command = lambda : previsualiser(apercu) ).pack(side = BOTTOM)
 
 	fenetre.mainloop()
 
 # Phase de tests
-
 
 FenetreMode()

@@ -1,30 +1,9 @@
-from math import inf
 from graphviz import Digraph
+from Poids import *
 
-# ================ Classe des Poids ================ #
+# =============== Roadmap ========================== #
 
-class Poids:
-
-	def __init__(self, valeur):
-		self.valeur = valeur
-
-	def __add__(self, w):
-		return Poids(self.valeur + w.valeur)
-
-	def __iadd__(self, w):
-		return self + w
-
-	def __lt__(self,w):
-		return  self.valeur < w.valeur
-
-	def __eq__(self,w):
-		return self.valeur == w.valeur
-
-	def __str__(self):
-		return "{0}".format(self.valeur)
-
-# TODO : Faire la vairable de classe Poids.ZERO et Poids.INF
-# TODO : Construire les poids en les faisant hériter de cette structure
+roadmap = ['dot', 'neato', 'fdp', 'sfdp', 'twopi', 'circo' ]
 
 # =============== Classe des Graphes =============== #
 
@@ -48,8 +27,9 @@ class Graphe:
 		self.sommets = V
 		self.arcs = E
 		
-		self.ZERO = PoidsType(0)
-		self.INF = PoidsType(inf)
+		self.typePoids = PoidsType
+		self.ZERO = PoidsType.ZERO()
+		self.INF = PoidsType.INF()
 
 		self.liste = self.liste_adjacence()
 		self.matrice = self.matrice_adjacence()
@@ -58,6 +38,9 @@ class Graphe:
 		return self.sommets[index]
 
 	""" Méthodes """
+	
+	def randomPoids(self):
+		return self.typePoids.RANDOM()
 
 	def voisins(self, S):
 		return [s for s,p in self.liste[self.sommets.index(S)][1] ]
@@ -130,13 +113,13 @@ class Graphe:
 				
 		return Matrice
 	
-	def Visualisation(self ,modelView = 'sfdp'):
+	def Visualisation(self , modeApercu = None ,modelView = 0):
 		Adj = self.matrice
-		g = Digraph(engine=modelView, format = 'png')
+		g = Digraph(engine=roadmap[modelView], format = 'png')
 		for i in range(len(Adj)):
 			for j in range(len(Adj)):
 				if Adj[i][j] != self.INF:
-					g.edge(self.sommets[i] , self.sommets[j] ,label = str(Adj[i][j]) , color='black')
+					g.edge(self.sommets[i] , self.sommets[j] ,label = Adj[i][j].display(modeApercu) , color='black')
 
 		g.render("Graphe.gv")
 	

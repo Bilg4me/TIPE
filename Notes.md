@@ -38,19 +38,19 @@ Prise de décision dans un environnement incertain
 
 ## Interface Graphique
 
-**Idées**
-- Premiere page : Mode (ferroviaire,routier)
-- Deuxieme page : Type de graphe (PSS,PDD,PDS)
-- Option : (Importer/Exporter format excel, Mode edition (ajout,supression de noeud), Mode visualisation (PCC sans/avec contrainte) )
+**Amélioration du code**
+- Faire un classe de Poids générale dont PSS,PDD,PDS héritent les uns des autres (2/4)
+- Mode visualisation : ajouter le choix de l'engine roadmap visualizer
+- Liante et Ciblante de données : ajouter des scrollbars (pour les grands graphes)
+- les nom de graphes à plus de deux lettres posent 2 problemes : la modification de poids entre deux noeuds et le calcul de pcc
 
 **Actuellement**
-- Première ouverture de fenêtre qui demande le type de graphique souhaité et le nombre de villes
-- Deuxième ouverture de fenêtre qui demande le nom des villes (Ou alors on le fait dans le tableur de la troisième ouverture)
-- Crée / lit un fichier excel à remplir à la main (ouais c'est chiant)
-OU ALORS
-On passe directement du fichier excel au graphe (on doit quand même le remplir)
+- Premiere page : mode (ferroviaire,routier) et type de graphe (PSS,PDD,PDS)
+- Option : Importer/Sauvegarder (format gbin avec pickle)
+- Mode edition : ajout,supression de noeud, importation de lignes (depuis fichier .txt )
+- Mode (aperçu et pcc) : detail, fiabilité, temps moyen
 
-## Amélioration du code
-- Faire un classe de Poids générale dont PSS,PDD,PDS héritent les uns des autres
-- Utiliser un module d'explotation de données gtfs pour les exporter dans un excel afin de ne pas à remplir un graphe à main nue
-
+## Idées
+- Parser/Exporter de données json pour lignes de metros
+- PCC sans/avec contrainte
+- Choix de l'algorithme de PCC

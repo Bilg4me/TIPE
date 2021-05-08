@@ -1,11 +1,106 @@
 from tkinter import *
+from tkinter.filedialog import *
 from Algorithme import *
 from PIL import ImageTk
+import pickle
 
-# Graphe
+# ============== Classes de Type de fenêtres ==============
 
-G = Graphe([],[],Poids)
+class CiblanteDeDonnees(Toplevel):
+	def __init__(self, données, function, multiple = True):
+		super().__init__()
+		
+		self.geometry('300x300')
+		self.title("Ciblante")
+		
+		n = len(données)
+		V = [IntVar() for i in range(n)]
+		
+		if multiple:
+			L = [Checkbutton(self, text=str(données[i]), variable = V[i], onvalue=1, offvalue=0) for i in range(n)]
+		else:
+			cible = StringVar()
+			L = [ Radiobutton(self, text=données[i], variable=cible, value=données[i]) for i in range(n) ]
+		
+		for box in L:
+			box.pack()
+		
+		def recupCibles():
+			if multiple:
+				Cibles = [ données[i] for i in range(n) if V[i].get() == 1 ]
+			else:
+				Cibles = [ cible ]
+			
+			for a in Cibles:
+				function(a)
+				
+			self.destroy()
 
+		Button(self, text="Valider", command=recupCibles).pack(side = BOTTOM)
+		
+class LianteDeDonnees(Toplevel):
+	def __init__(self, données, function):
+		super().__init__()
+		
+		self.geometry('300x300')
+		self.title("Liante")
+		
+		n = len(données)
+		frame1 = LabelFrame(self, text="départ")
+		frame1.pack(side = LEFT)
+		frame2 = LabelFrame(self, text="arrivées")
+		frame2.pack(side = RIGHT)
+		
+		cible1 = StringVar()
+		cible2 = StringVar()
+		L1 = [ Radiobutton(frame1, text=données[i], variable=cible1, value=données[i]) for i in range(n) ]
+		L2 = [ Radiobutton(frame2, text=données[i], variable=cible2, value=données[i]) for i in range(n) ]
+		
+		for k in range(n):
+			L1[k].pack()
+			L2[k].pack()
+		
+		def recupCibles():
+			function(cible1.get(), cible2.get())
+			self.destroy()
+
+		Button(self, text="Valider", command=recupCibles).pack(side = BOTTOM)
+
+# ============ Quelques fonctions auxiliaires =============
+
+def parser(filename):
+	fichier = open(filename,'r')
+	LIGNES = []
+	for ligne in fichier:
+		if ligne[0] == "[":
+			LIGNES.append([])
+		else:
+			LIGNES[-1].append(ligne.rstrip('\n'))
+	return LIGNES
+
+def import_ligne():
+	LIGNES = parser(askopenfilename(filetypes=[("Texte","*.txt"),("Tableau","*.csv"),("JSON","*.json")]))
+	
+	for ligne in LIGNES:
+		for station in ligne:
+			G.ajouter_sommet(station)
+		
+		for k in range(len(G.sommets)-1, len(G.sommets) - len(ligne), -1):
+			G.ajouter_arc(G[k],G[k-1],G.randomPoids())
+	
+def save_graph():
+	filename = asksaveasfilename(filetypes=[("Binary Graph","*.gbin")])
+	outfile = open(filename, 'wb')
+	pickle.dump(G, outfile)
+	outfile.close()
+
+def import_graph():
+	global G
+	filename = askopenfilename(filetypes=[("Binary Graph","*.gbin")])
+	infile = open(filename,'rb')
+	G = pickle.load(infile)
+	infile.close()
+	
 def define_poids_statique(A,B, stochastique = True):
 	fenetre = Toplevel()
 	fenetre.geometry('600x600')
@@ -22,10 +117,23 @@ def define_poids_statique(A,B, stochastique = True):
 			valeurs.pack(fill="y", expand="no", side = LEFT)
 			probas = LabelFrame(fenetre, text="probas")
 			probas.pack(fill="y", expand="no", side = RIGHT)
+			plist = [Spinbox(probas, from_=0, to=1, increment=0.1) for k in range(nb)]
+			clist = [Spinbox(valeurs, from_=0, to=10) for k in range(nb)]
 			for k in range(nb):
-				Spinbox(probas, from_=0, to=1, increment=0.1).pack()
-				Spinbox(valeurs, from_=0, to=10).pack()
-			Button(fenetre, text="Valider").pack()
+				plist[k].pack()
+				clist[k].pack()
+			
+			def rentrerPSS():
+				valeurs = [int(spinbox.get()) for spinbox in clist]
+				probas = [float(spinbox.get()) for spinbox in plist]
+				
+				if sum(probas) != 1.0 :
+					raise Exception("Désolé, ce n'est pas une distribution de probabilité")
+				
+				G.ajouter_arc(A,B,PSS(zip(valeurs,probas)))
+				fenetre.destroy()
+			
+			Button(fenetre, text="Valider",command = rentrerPSS).pack()
 
 		Button(fenetre, text="Valider", command= lambda : creerstochastique(fenetre, int(s.get()))).pack()
 	else:
@@ -68,26 +176,25 @@ def define_poids_dynamique(cycle, periode, stochastique = True):
 
 		Button(fenetre, text="Valider").pack()
 
-def setPoids(window, A,B):
-	
+def setPoids(A,B):
 	if not (A in G and B in G):
 		raise Exception("Désolé, cet arc ne peut être construit")
 	
-	if typeGraphe == 'DS':
+	# on supprimer l'arc qui va être modifié (s'il existe déjà)
+	for a in G.arcs:
+		if a.origine == A and a.destination == B:
+			G.supprimer_arc(a)
+	
+	if typedeGraphe == 'DS':
 		define_poids_statique(A,B,False)
-	elif typeGraphe == 'DD':
-		define_poids_dynamique(cycle,periode, False)
-	elif typeGraphe == 'SD':
+	elif typedeGraphe == 'DD':
+		define_poids_dynamique(cycle,periode,False)
+	elif typedeGraphe == 'SD':
 		define_poids_dynamique(cycle,periode)
 	else: # typeGraphe == 'SS':
-		define_poids_statique()
-		
-		
-	
-	window.destroy()
+		define_poids_statique(A,B,True)
 
-def setName(window, sommet):
-	window.destroy()
+def setName(sommet):
 	fenetre = Toplevel()
 	fenetre.geometry('300x300')
 	Label(fenetre, text="Nouveau nom : ").pack()
@@ -99,126 +206,130 @@ def setName(window, sommet):
 
 	Button(fenetre, text="valider", command = modifiersommetdugraphe).pack()
 
-def FenetreMode():
-	fenetre = Tk()
-	fenetre.geometry('800x600')
-	Button(fenetre, text="Routier", bg = "green" , fg = "black", command = lambda : FenetreTypeGraphe("Routier", fenetre)).pack(side=TOP, padx=5, pady=5)
-	Button(fenetre, text="Ferro", bg = "green" , fg = "black", command = lambda : FenetreTypeGraphe("Ferro", fenetre)).pack(side=BOTTOM, padx=5, pady=5)
-	fenetre.mainloop()
-
-def FenetreTypeGraphe(mode, window):
-    #Choix du type de graphe
-    window.destroy()
-    fenetre = Tk()
-    fenetre.geometry('800x600')
-    var_choix = StringVar()
-
-    choix_DS = Radiobutton(fenetre, text="Déterministe Statique", bg = "violet", variable = var_choix, value="DS")
-    choix_SS = Radiobutton(fenetre, text="Stochastique Statique", bg = "violet", variable = var_choix, value="SS")
-    choix_DD = Radiobutton(fenetre, text="Déterministe Dynamique", bg = "violet", variable = var_choix, value="DD")
-    choix_SD = Radiobutton(fenetre, text="Stochastique Dynamique", bg = "violet", variable = var_choix, value="SD")
-
-    TitreChoix = Label(fenetre,text = "Choisissez le type de modélisation : en mode " + mode , relief=RAISED , bg = "black" , fg = "white")
-
-    TitreChoix.place(x = 0, y = 5)
-    choix_DS.place(x = 0 , y = 25)
-    choix_SS.place(x = 0 , y = 45)
-    choix_DD.place(x = 0 , y = 65)
-    choix_SD.place(x = 0 , y = 85)
-
-    #Valider
-    def Valider():
-        fenetre.destroy()
-        FenetreModelisation(mode, var_choix.get())
-
-    bouton_valider = Button(fenetre, text="Valider", bg = "green" , fg = "black", command = Valider)
-    bouton_valider.place(x = 150 , y = 180)
-
-def FenetreModelisation(mode, typedeGraphe):
-	fenetre = Tk()
-	fenetre.geometry('800x600')
-	global typeGraphe
-	typeGraphe = typedeGraphe
+def afficherpcc(A,B,frame):
+	for widget in frame.winfo_children():
+		widget.destroy()
 	
-	def alert():
-		return None
+	Visualiser(A,B,G,modeApercu.get())
+	
+	photo = ImageTk.PhotoImage(file="Graphe.gv.png")
+	canv = Canvas(frame, width=1000, height=600, scrollregion=(0, 0, photo.width(), photo.height()))
+
+	defilY = Scrollbar(frame, orient='vertical',command=canv.yview)
+	defilY.grid(row=0, column=1, sticky='ns')
+
+	defilX = Scrollbar(frame, orient='horizontal',command=canv.xview)
+	defilX.grid(row=1, column=0, sticky='ew')
+
+	canv['xscrollcommand'] = defilX.set
+	canv['yscrollcommand'] = defilY.set
+	canv.create_image(0, 0, anchor=NW, image=photo)
+	canv.image = photo
+	
+	canv.grid(row=0, column=0)
+
+def previsualiser(frame):
+	for widget in frame.winfo_children():
+		widget.destroy()
+
+	G.Visualisation(modeApercu.get())
+	photo = ImageTk.PhotoImage(file="Graphe.gv.png")
+	canv = Canvas(frame, width=1100, height=600, scrollregion=(0, 0, photo.width(), photo.height()))
+
+	defilY = Scrollbar(frame, orient='vertical',command=canv.yview)
+	defilY.grid(row=0, column=1, sticky='ns')
+
+	defilX = Scrollbar(frame, orient='horizontal',command=canv.xview)
+	defilX.grid(row=1, column=0, sticky='ew')
+
+	canv['xscrollcommand'] = defilX.set
+	canv['yscrollcommand'] = defilY.set
+	canv.create_image(0, 0, anchor=NW, image=photo)
+	canv.image = photo
+	
+	canv.grid(row=0, column=0)
+
+# ======================== GUI =============================
+
+def FenetreMode():
+    # Choix du type de graphe
+    
+	fenetre = Tk()
+	fenetre.geometry('800x600')
+	
+	MODE = LabelFrame(fenetre, text="Mode")
+	MODE.pack(side = LEFT)
+	mode = StringVar()
+	Radiobutton(MODE, text="Ferroviaire",variable = mode, value="Ferroviaire").pack()
+	Radiobutton(MODE, text="Routier",variable = mode, value="Routier").pack()
+    
+	TYPEGRAPHE = LabelFrame(fenetre, text="Type de Graphe")
+	TYPEGRAPHE.pack(side = RIGHT)
+	typeGraphe = StringVar()
+	Radiobutton(TYPEGRAPHE, text="Déterministe Statique",variable = typeGraphe, value="DS").pack()
+	Radiobutton(TYPEGRAPHE, text="Stochastique Statique",variable = typeGraphe, value="SS").pack()
+	Radiobutton(TYPEGRAPHE, text="Déterministe Dynamique",variable = typeGraphe, value="DD").pack()
+	Radiobutton(TYPEGRAPHE, text="Stochastique Dynamique",variable = typeGraphe, value="SD").pack()
+
+	#Valider
+	def Valider():
+		fenetre.destroy()
+		FenetreCréation(mode.get(), typeGraphe.get())
+		
+	
+	Button(fenetre, text="Valider", command = Valider).pack(side = BOTTOM)
+
+def FenetreCréation(mode, typeGraphe):
+	fenetre = Tk()
+	fenetre.geometry('800x600')
+	fenetre.title("mode : {} avec un type de graphe : {} ".format(mode,typeGraphe))
+	
+	global typedeGraphe, modeApercu, G
+	typedeGraphe = typeGraphe
+	modeApercu = StringVar()
+	
+	if typeGraphe == 'DS':
+		G = Graphe([],[],Poids)
+	elif typeGraphe == 'SS':
+		G = Graphe([],[],PSS)
+	elif typeGraphe == 'DD':
+		pass
+	else :
+		pass
+		
+	def reveniraumenu():
+		fenetre.destroy()
+		FenetreMode()
 	
 	# Menu
 	menubar = Menu(fenetre)
 
 	menu1 = Menu(menubar, tearoff=0)
-	menu1.add_command(label="Créer", command=alert)
-	menu1.add_command(label="Importer", command=alert)
-	menu1.add_command(label="Exporter", command=alert)
-	menu1.add_command(label="Sauvegarder", command=alert)
+	menu1.add_command(label="Créer")
+	menu1.add_command(label="Importer", command= import_graph)
+	menu1.add_command(label="Exporter")
+	menu1.add_command(label="Sauvegarder", command=save_graph)
 	menu1.add_separator()
-	menu1.add_command(label="Quitter", command=fenetre.quit)
+	menu1.add_command(label="Revenir au menu", command=reveniraumenu)
 	menubar.add_cascade(label="Fichier", menu=menu1)
 
 	menu2 = Menu(menubar, tearoff=0)
-	menu2.add_command(label="Couper", command=alert)
-	menu2.add_command(label="Copier", command=alert)
-	menu2.add_command(label="Coller", command=alert)
+	menu2.add_command(label="Couper")
+	menu2.add_command(label="Copier")
+	menu2.add_command(label="Coller")
 	menubar.add_cascade(label="Edition", menu=menu2)
 
 	menu3 = Menu(menubar, tearoff=0)
-	menu3.add_command(label="A propos", command=alert)
+	menu3.add_command(label="A propos")
 	menubar.add_cascade(label="Aide", menu=menu3)
 
 	fenetre.config(menu=menubar)
-
-	# previsualisation du graphe
-
-	def previsualiser(frame):
-		for widget in frame.winfo_children():
-			widget.destroy()
-		
-		G.Visualisation()
-		photo = ImageTk.PhotoImage(file="Graphe.gv.png")
-		canvas = Canvas(apercu,width=100, height=500)
-		canvas.create_image(0, 0, anchor=NW, image=photo)
-		canvas.image = photo
-		canvas.pack(fill="both", expand=True)
 	
-	def pcc(frame):
-		n = len(G.sommets)
-		fenetre = Toplevel()
-		fenetre.geometry('300x300')
-
-		cadresDesDéparts = LabelFrame(fenetre, text="depart")
-		cadresDesDéparts.pack(side = LEFT)
-
-		depart = StringVar()
-		pointsdeparts = [ Radiobutton(cadresDesDéparts, text=G[i], variable=depart, value=G[i]) for i in range(n) ]
-		for rb in pointsdeparts:
-			rb.pack()
-
-		cadresDesArrives = LabelFrame(fenetre, text="arrive")
-		cadresDesArrives.pack(side = RIGHT)
-
-		arrive = StringVar()
-		pointsarrives = [ Radiobutton(cadresDesArrives, text=G[i], variable=arrive, value=G[i]) for i in range(n) ]
-		for rb in pointsarrives:
-			rb.pack()
-
-		Button(fenetre, text="Calculer le PCC", command = lambda : afficherpcc(depart.get(), arrive.get(),G,frame)).pack()
-
-		fenetre.mainloop()
-	
-	def afficherpcc(A,B,G,frame):
-		for widget in frame.winfo_children():
-			widget.destroy()
-		
-		Visualiser(A,B,G)
-		photo = ImageTk.PhotoImage(file="Graphe.gv.png")
-		canvas = Canvas(apercu,width=100, height=500)
-		canvas.create_image(0, 0, anchor=NW, image=photo)
-		canvas.image = photo
-		canvas.pack(fill="both", expand=True)
-
-	# ajout/suppression de noeuds et arc
+	# ajout/suppression/modications des noeuds,arcs,poids
 
 	def ajoutNoeuds(modeLigne = False):
+		if modeLigne and mode != "Ferroviaire":
+			return None
 		def rentrerNoeuds(window, nb):
 			window.destroy()
 			def ajouterlesnoeudsaugraphe(window, entrees):
@@ -226,7 +337,8 @@ def FenetreModelisation(mode, typedeGraphe):
 					G.ajouter_sommet(e.get())
 				if modeLigne :
 					for k in range(len(G.sommets)-1, len(G.sommets) - nb, -1):
-						G.ajouter_arc(G[k],G[k-1],Poids(1))
+						G.ajouter_arc(G[k],G[k-1],G.randomPoids())
+				
 				window.destroy()
 
 			fenetre = Tk()
@@ -248,98 +360,22 @@ def FenetreModelisation(mode, typedeGraphe):
 		ligne_noeuds.place(x = 0 , y = 0)
 		Button(fenetre, text="choisir", command= lambda : rentrerNoeuds(fenetre, int(ligne_noeuds.get()))).pack()
 		fenetre.mainloop()
-
+			
 	def supprimeNoeuds(listeDesNoeuds):
-		fenetre = Toplevel()
-		# askip le probleme venait du fait qu'on ne peux cumuler plusieurs instance de Tk() donc pour le résoudre on utilise un toplevel
-		fenetre.geometry('300x300')
-		n = len(listeDesNoeuds)
-		V = [IntVar() for i in range(n)]
-		L = [Checkbutton(fenetre, text=str(listeDesNoeuds[i]), variable = V[i], onvalue=1, offvalue=0) for i in range(n)]
-		for cb in L:
-			cb.pack()
-		def recupNonVoulus():
-			NonVoulus = [ G[i] for i in range(n) if V[i].get() == 1 ]
-			for s in NonVoulus:
-				G.supprimer_sommet(s)
-			fenetre.destroy()
-
-		Button(fenetre, text="Supprimer", bg = "red" , fg = "white", command = recupNonVoulus).pack(side = BOTTOM)
-		fenetre.mainloop()
-
-	# Ajouts, suppression arcs
+		CiblanteDeDonnees(listeDesNoeuds, G.supprimer_sommet).mainloop()
 
 	def ajoutArcs(listeDesNoeuds):
-		n = len(listeDesNoeuds)
-		fenetre = Toplevel()
-		fenetre.geometry('300x300')
-
-		cadresDesDéparts = LabelFrame(fenetre, text="depart")
-		cadresDesDéparts.pack(side = LEFT)
-
-		depart = StringVar()
-		pointsdeparts = [ Radiobutton(cadresDesDéparts, text=G[i], variable=depart, value=G[i]) for i in range(n) ]
-		for rb in pointsdeparts:
-			rb.pack()
-
-		cadresDesArrives = LabelFrame(fenetre, text="arrive")
-		cadresDesArrives.pack(side = RIGHT)
-
-		arrive = StringVar()
-		pointsarrives = [ Radiobutton(cadresDesArrives, text=G[i], variable=arrive, value=G[i]) for i in range(n) ]
-		for rb in pointsarrives:
-			rb.pack()
-
-		Button(fenetre, text="Set poids", command= lambda : setPoids(fenetre, depart.get(), arrive.get())).pack()
-
-		fenetre.mainloop()
+		LianteDeDonnees(listeDesNoeuds, setPoids).mainloop()
 
 	def supprimeArcs(listeDesArcs):
-		fenetre = Toplevel()
-		# askip le probleme venait du fait qu'on ne peux cumuler plusieurs instance de Tk() donc pour le résoudre on utilise un toplevel
-		fenetre.geometry('300x300')
-		n = len(listeDesArcs)
-		V = [IntVar() for i in range(n)]
-		L = [Checkbutton(fenetre, text=str(listeDesArcs[i]), variable = V[i], onvalue=1, offvalue=0) for i in range(n)]
-		
-		for cb in L:
-			cb.pack()
-		def recupNonVoulus():
-			NonVoulus = [ G.arcs[i] for i in range(n) if V[i].get() == 1 ]
-			for a in NonVoulus:
-				G.supprimer_arc(a)
-			fenetre.destroy()
-
-		Button(fenetre, text="Supprimer", bg = "red" , fg = "white", command = recupNonVoulus).pack(side = BOTTOM)
-		fenetre.mainloop()
+		CiblanteDeDonnees(listeDesArcs, G.supprimer_arc).mainloop()
 
 	def modifier(listeDesNoeuds,listeDesArcs):
 		def changeSommet(listeDesNoeuds):
-			fenetre2 = Toplevel()
-			fenetre2.geometry('300x300')
-			n = len(listeDesNoeuds)
-
-			sommetchangé = StringVar()
-			pointsdeparts = [ Radiobutton(fenetre2, text=G[i], variable=sommetchangé, value=G[i]) for i in range(n) ]
-
-			for rb in pointsdeparts:
-				rb.pack()
-
-			Button(fenetre2, text="Modifier le nom du sommet", command = lambda : setName(fenetre2, sommetchangé)).pack()
+			CiblanteDeDonnees(listeDesNoeuds,setName,False).mainloop()
 
 		def changePoidsArc(listeDesArcs):
-			
-			fenetre2 = Toplevel()
-			fenetre2.geometry('300x300')
-			n = len(listeDesArcs)
-
-			arcchangé = StringVar()
-			arcsModifiables = [Radiobutton(fenetre2, text=G.arcs[i], variable=arcchangé, value=str(G.arcs[i])) for i in range(n)]
-
-			for rb in arcsModifiables:
-				rb.pack()
-
-			Button(fenetre2, text="Modifier le poids de cet arc", command = setPoids(fenetre2, arcchangé.get()[0], arcchangé.get()[-1])).pack()
+			CiblanteDeDonnees(listeDesArcs,lambda arcchangé : setPoids(arcchangé.get()[0],arcchangé.get()[5]) ,False).mainloop()
 
 		# menu des modifications
 		fenetre = Tk()
@@ -347,17 +383,30 @@ def FenetreModelisation(mode, typedeGraphe):
 		Button(fenetre, text="Modifier un sommet", command = lambda : changeSommet(listeDesNoeuds)).pack()
 		Button(fenetre, text="Modifier la valeur d'un poids d'un arc", command = lambda : changePoidsArc(listeDesArcs)).pack()
 		fenetre.mainloop()
-
-
-
-	# Cadre d'édition de graphe
+	
+	# PCC
+	
+	def pcc(frame):
+		LianteDeDonnees(G.sommets, (lambda x, y : afficherpcc(x,y,frame) )).mainloop()
+	
+	# Cadres d'édition et aperçu du graphe
 
 	editeur = LabelFrame(fenetre, text="Editeur", padx=20, pady=20)
 	editeur.pack(fill="y", expand="no", side = LEFT)
+	apercu = LabelFrame(fenetre, text="Aperçu", padx=20, pady=20)
+	apercu.pack(fill="both", expand=True, side = RIGHT)
+	
+	Button(editeur, text="Ajouter noeuds", bg = "green" , fg = "black", command = ajoutNoeuds).pack()
+	Button(editeur, text="Supprimer noeuds", bg = "green" , fg = "black", command = lambda : supprimeNoeuds(G.sommets) ).pack()
+	Button(editeur, text="Ajouter arcs", bg = "green" , fg = "black", command = lambda : ajoutArcs(G.sommets)).pack()
+	Button(editeur, text="Supprimer arcs", bg = "green" , fg = "black", command = lambda : supprimeArcs(G.arcs)).pack()
+	Button(editeur, text="Modifications", bg = "green" , fg = "black", command = lambda : modifier(G.sommets,G.arcs) ).pack()
+	Button(editeur, text="PCC", bg = "red" , fg = "white", command = lambda: pcc(apercu)).pack(side = BOTTOM)
+	Button(editeur, text="Aperçu", bg = "blue" , fg = "white", command = lambda : previsualiser(apercu) ).pack(side = BOTTOM)
+	Button(editeur, text="Créer ligne", bg = "green" , fg = "black", command = lambda : ajoutNoeuds(True)).pack()
+	Button(editeur, text="Importer ligne", bg = "green" , fg = "black", command = import_ligne).pack()
 
-	fenetre.title("mode : {} avec un type de graphe : {} ".format(mode,typeGraphe))
-
-	# cas des graphes Dynamiques
+	# Cas des graphes Dynamiques
 
 	if typeGraphe[-1] == 'D':
 		parametresDynamique = Toplevel()
@@ -376,28 +425,16 @@ def FenetreModelisation(mode, typedeGraphe):
 			Label(editeur, text = "Dynamique settings : Periode {} u.t / Cycle {} u.t".format(periode,cycle)).pack()
 		Button(parametresDynamique, text = "valider", command=recupererParametreDynamique).pack()
 
-	Button(editeur, text="Ajouter noeuds", bg = "green" , fg = "black", command = ajoutNoeuds).pack()
-	Button(editeur, text="Supprimer noeuds", bg = "green" , fg = "black", command = lambda : supprimeNoeuds(G.sommets) ).pack()
-	Button(editeur, text="Ajouter arcs", bg = "green" , fg = "black", command = lambda : ajoutArcs(G.sommets)).pack()
-	Button(editeur, text="Supprimer arcs", bg = "green" , fg = "black", command = lambda : supprimeArcs(G.arcs)).pack()
-	Button(editeur, text="Modifications", bg = "green" , fg = "black", command = lambda : modifier(G.sommets,G.arcs) ).pack()
-
-	if mode == "Ferro":
-		def ligne_ferroviaire():
-			ajoutNoeuds(modeLigne = True)
-		Button(editeur, text="Créer ligne", bg = "green" , fg = "black", command = ligne_ferroviaire).pack()
-
-	# Cadre aperçu du graphe
-
-	apercu = LabelFrame(fenetre, text="Aperçu", padx=20, pady=20)
-	apercu.pack(fill="both", expand=True, side = RIGHT)
-	# Boutons d'aperçu et de PCC
+	# Cas des graphes Statiques Stochastiques
 	
-	Button(editeur, text="PCC", bg = "red" , fg = "white", command = lambda: pcc(apercu) ).pack(side = BOTTOM)
-	Button(editeur, text="Aperçu", bg = "blue" , fg = "white", command = lambda : previsualiser(apercu) ).pack(side = BOTTOM)
-
+	if typedeGraphe == 'SS':	
+		Radiobutton(editeur, text="Mode détail", variable = modeApercu, value="detail").pack(side = BOTTOM)
+		Radiobutton(editeur, text="Mode moyenne", variable = modeApercu, value="moyenne").pack(side = BOTTOM)
+		Radiobutton(editeur, text="Mode fiabilité", variable = modeApercu, value="fiabilite").pack(side = BOTTOM)
+	
 	fenetre.mainloop()
 
-# Phase de tests
+# =========== Phase de tests ============
 
 FenetreMode()
+

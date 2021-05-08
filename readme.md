@@ -31,6 +31,12 @@ Méthode primales pour resoudre le pb du plus court chemin avec contraintes de r
 
 [Générateur de graphes Graphviz it !](http://graphviz.it/#/gallery/abstract.gv)
 
+## Données
+
+[Métro parisien](https://github.com/pgrimaud/horaires-ratp-api)
+
+[London Subway](https://gist.github.com/paulcuth/1111303)
+
 ## Theses et documents scientifiques
 
 [Mohamed Mejdi Hizem](https://tel.archives-ouvertes.fr/tel-00344958/document)

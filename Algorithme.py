@@ -77,7 +77,7 @@ def Tableau(M, G):
 		acc = Trouve[-1][1]
 		V = Autour(M, G)
 		Placer(M,V,acc)
-		# print("je pars de",M,"accumulateur",acc)
+		print("je pars de",M,"accumulateur",acc)
 		
 	return Lignes, Trouve
 

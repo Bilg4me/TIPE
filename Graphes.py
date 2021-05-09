@@ -18,7 +18,7 @@ class Arc:
 		return [self.origine,self.destination][index]
 	
 	def __str__(self):
-		return self.origine + " -> " + self.destination + " : " + str(self.poids)
+		return self.origine + "->" + self.destination + "->" + str(self.poids)
 
 class Graphe:
 	# V des sommets et E une liste d'arcs
@@ -46,8 +46,9 @@ class Graphe:
 		return [s for s,p in self.liste[self.sommets.index(S)][1] ]
 
 	def ajouter_sommet(self, S):
-		self.sommets.append(S)
-		self.recharger()
+		if not (S in self.sommets):
+			self.sommets.append(S)
+			self.recharger()
 
 	def supprimer_sommet(self, S):
 		self.sommets.remove(S)
@@ -76,9 +77,9 @@ class Graphe:
 			
 
 	def ajouter_arc(self, O,D,p):
-		# TODO: verifier si les sommets de l'arc sont dans le graphe et sinon les ajouter au graphe
-		self.arcs.append(Arc(O,D,p))
-		self.recharger()
+		if not (Arc(O,D,p) in self.arcs):	
+			self.arcs.append(Arc(O,D,p))
+			self.recharger()
 
 	def supprimer_arc(self, A):
 		self.arcs.remove(A)

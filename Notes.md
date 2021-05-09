@@ -42,7 +42,22 @@ Prise de décision dans un environnement incertain
 - Faire un classe de Poids générale dont PSS,PDD,PDS héritent les uns des autres (2/4)
 - Mode visualisation : ajouter le choix de l'engine roadmap visualizer
 - Liante et Ciblante de données : ajouter des scrollbars (pour les grands graphes)
-- les nom de graphes à plus de deux lettres posent 2 problemes : la modification de poids entre deux noeuds et le calcul de pcc
+- Empecher de pouvoir accéder à l'editeur si le type de graphe n'a pas été renseigné
+-Affichage du pcc : n'afficher que la direction concernée et pas les deux fleches en vert
+
+**Débuggage**
+
+- Le pcc ne fonctionne pas pour tous les chemin d'un graphe non fortement connexe (pb propres aux graphes orienté) => soit modifier dijkstra soit imposer des graphes avec des doubles voies partout
+Le code erreur : `File "/home/brome/Documents/TIPE/Algorithme.py", line 15, in Autour
+    return G.liste[G.sommets.index(S)][1]
+ValueError: None is not in list`
+
+- Les pcc ne fonctionnent pas dans tous les cas : `Placer(M,V,acc)
+  File "/home/brome/Documents/TIPE/Algorithme.py", line 64, in Placer
+    elif P == M and Lignes[-1][G.sommets.index(M)] == G.INF:
+  File "/home/brome/Documents/TIPE/Poids.py", line 21, in __eq__
+    return self.valeur == w.valeur
+AttributeError: 'NoneType' object has no attribute 'valeur'`
 
 **Actuellement**
 - Premiere page : mode (ferroviaire,routier) et type de graphe (PSS,PDD,PDS)
@@ -51,6 +66,6 @@ Prise de décision dans un environnement incertain
 - Mode (aperçu et pcc) : detail, fiabilité, temps moyen
 
 ## Idées
-- Parser/Exporter de données json pour lignes de metros
+- Parser/Exporter de données json/gtfs pour lignes de metros
 - PCC sans/avec contrainte
 - Choix de l'algorithme de PCC

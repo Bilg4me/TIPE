@@ -17,7 +17,7 @@ class CiblanteDeDonnees(Toplevel):
 		V = [IntVar() for i in range(n)]
 		
 		if multiple:
-			L = [Checkbutton(self, text=str(données[i]), variable = V[i], onvalue=1, offvalue=0) for i in range(n)]
+			L = [Checkbutton(self, text=données[i], variable = V[i], onvalue=1, offvalue=0) for i in range(n)]
 		else:
 			cible = StringVar()
 			L = [ Radiobutton(self, text=données[i], variable=cible, value=données[i]) for i in range(n) ]
@@ -29,7 +29,10 @@ class CiblanteDeDonnees(Toplevel):
 			if multiple:
 				Cibles = [ données[i] for i in range(n) if V[i].get() == 1 ]
 			else:
-				Cibles = [ cible ]
+				if '->' in cible.get():
+					Cibles = [ cible.get().split('->')[:2] ]
+				else:
+					Cibles = [ cible.get() ]
 			
 			for a in Cibles:
 				function(a)
@@ -85,8 +88,10 @@ def import_ligne():
 		for station in ligne:
 			G.ajouter_sommet(station)
 		
-		for k in range(len(G.sommets)-1, len(G.sommets) - len(ligne), -1):
-			G.ajouter_arc(G[k],G[k-1],G.randomPoids())
+		for k in range(len(ligne)-1):
+			rp = G.randomPoids()
+			G.ajouter_arc(ligne[k],ligne[k+1],rp)
+			# G.ajouter_arc(ligne[k+1],ligne[k],rp)
 	
 def save_graph():
 	filename = asksaveasfilename(filetypes=[("Binary Graph","*.gbin")])
@@ -201,7 +206,7 @@ def setName(sommet):
 	nouveauNom = Entry(fenetre)
 	nouveauNom.pack()
 	def modifiersommetdugraphe():
-		G.modifier_sommet(sommet.get(), nouveauNom.get())
+		G.modifier_sommet(sommet, nouveauNom.get())
 		fenetre.destroy()
 
 	Button(fenetre, text="valider", command = modifiersommetdugraphe).pack()
@@ -375,7 +380,7 @@ def FenetreCréation(mode, typeGraphe):
 			CiblanteDeDonnees(listeDesNoeuds,setName,False).mainloop()
 
 		def changePoidsArc(listeDesArcs):
-			CiblanteDeDonnees(listeDesArcs,lambda arcchangé : setPoids(arcchangé.get()[0],arcchangé.get()[5]) ,False).mainloop()
+			CiblanteDeDonnees(listeDesArcs,lambda arcchangé : setPoids(arcchangé[0],arcchangé[1]) ,False).mainloop()
 
 		# menu des modifications
 		fenetre = Tk()
@@ -437,4 +442,3 @@ def FenetreCréation(mode, typeGraphe):
 # =========== Phase de tests ============
 
 FenetreMode()
-

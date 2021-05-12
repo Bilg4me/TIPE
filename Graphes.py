@@ -39,6 +39,11 @@ class Graphe:
 
 	""" Méthodes """
 	
+	def effacer(self):
+		self.sommets = []
+		self.arcs = []
+		print("réinitialisation")
+	
 	def randomPoids(self):
 		return self.typePoids.RANDOM()
 
@@ -77,9 +82,15 @@ class Graphe:
 			
 
 	def ajouter_arc(self, O,D,p):
-		if not (Arc(O,D,p) in self.arcs):	
-			self.arcs.append(Arc(O,D,p))
-			self.recharger()
+		for arc in self.arcs:
+			if arc.origine == O and arc.destination == D:
+				if arc.poids > p:
+					self.supprimer_arc(arc)
+				else :
+					return False
+		
+		self.arcs.append(Arc(O,D,p))
+		self.recharger()
 
 	def supprimer_arc(self, A):
 		self.arcs.remove(A)

@@ -11,8 +11,8 @@ def Noeuds(G):
 def GrapheVersMat(G):
     return G.matrice_adjacence()
 
-def Autour(S, G):
-    return G.liste[G.sommets.index(S)][1]
+def Autour(M, G):
+	return G.liste[G.sommets.index(M)][1]
 
 def PlusProche(Lignes,G):
 	M,m = None,G.INF
@@ -76,25 +76,26 @@ def Tableau(M, G):
 		M = Trouve[-1][0]
 		acc = Trouve[-1][1]
 		V = Autour(M, G)
-		Placer(M,V,acc)
-		print("je pars de",M,"accumulateur",acc)
+		# print(V)
+		# print("je pars de",M,"accumulateur",acc)
+		Placer(M,V,acc)	
 		
 	return Lignes, Trouve
 
 def Suivis(A,B,L):
 	for k in range(len(L)-1):
-		if ( L[k] == A and L[k+1] == B ) or ( L[k] == B and L[k+1] == A ):
+		if ( L[k] == A and L[k+1] == B ):
 			return True
 	return False
 
 def Visualiser(A,B,G,modeApercu,modelView = 0):
-	#par défaut le mode d'optimisation pour un PSS se fait en moyenne
+	# par défaut le mode d'optimisation pour un PSS se fait en moyenne
 	if modeApercu == 'fiabilite':
 		G.typePoids.mode = 1
 	if modeApercu == 'moyenne':
 		G.typePoids.mode = 0
 		
-	print("plus court chemin entre {} et {} en mode {}".format(A,B,modeApercu))
+	print("plus court chemin entre {} et {} {}".format(A,B,modeApercu))
 
 	Adj = GrapheVersMat(G)
 	g = Digraph(engine=roadmap[modelView], format = 'png')

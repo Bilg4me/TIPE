@@ -103,7 +103,7 @@ class PSS(Poids):
 			s += " | {} : {} ".format(c,p) + '\n'
 		return s
 		
-	## Fonctions propre
+	## Methodes objet
 	
 	def Antidoublons(self,L):
 		B = sorted(L)
@@ -132,4 +132,120 @@ class PSS(Poids):
 	def Ecart_type(self) :
 		return round(sqrt(self.Variance()),2)
 
-# TODO : Construire les poids en les faisant hériter de cette structure
+class PDD(Poids):
+	
+	# attribut de classe
+	NBelement = 3
+	Cycle = 12
+	Periode = Cycle // NBelement
+	
+	def __init__(self, liste_temps):
+		if len(liste_temps) != PDD.NBelement:
+			raise ValueError 
+		self.collection = liste_temps
+		self.horloge = 0
+		self.index = (self.horloge // PDD.Periode) % PDD.NBelement
+		self.valeur = self.collection[self.index]
+		
+	def sethorloge(self, h):
+		self.horloge = h
+		self.index = (self.horloge // PDD.Periode) % PDD.NBelement
+		self.valeur = self.collection[self.index]
+		
+	def __getitem__(self, index):
+		return self.collection[index]
+	
+	# Surcharge des operateurs
+	
+	def __add__(self, poids):
+		# ici self est un accumulateur de sorte qu'on défini ici une loi + de la forme acc + poids
+		
+		if self == PDD.ZERO():
+			return poids
+		
+		collectionSomme = []
+
+		for valeur in self:
+			v = (self.horloge % PDD.Cycle) + valeur
+			index = (v // PDD.Periode) % PDD.NBelement
+			collectionSomme.append(v + poids[index])
+				
+		P = PDD(collectionSomme)
+		P.sethorloge(self.horloge)
+		
+		return P
+	
+	def __str__(self):
+		return "{}".format(self.collection)
+	
+	# Fonction de classe
+		
+	def ZERO():
+		return PDD([ 0 for _ in range(PDD.NBelement) ])
+		
+	def INF():
+		return PDD([ inf for _ in range(PDD.NBelement) ])
+		
+	def RANDOM():
+		return PDD([ randint(1,6) for _ in range(PDD.NBelement) ])
+
+class PSD(PDD):
+	
+	# attribut de classe
+	NBelement = 3
+	Cycle = 12
+	Periode = Cycle // NBelement
+	
+	def __init__(self, liste_pss):
+		if len(liste_pss) != PSD.NBelement:
+			raise ValueError 
+		self.collection = liste_pss
+		self.horloge = 0
+		self.index = (self.horloge // PSD.Periode) % PSD.NBelement
+		self.valeur = self.collection[self.index].valeur
+		
+	def sethorloge(self, h):
+		self.horloge = h
+		self.index = (self.horloge // PSD.Periode) % PSD.NBelement
+		self.valeur = self.collection[self.index].valeur
+		
+		# Surcharge des operateurs
+	
+	def __add__(self, poids):
+		# ici self est un accumulateur de sorte qu'on défini ici une loi + de la forme acc + poids
+		
+		if self == PSD.ZERO():
+			return poids
+		
+		collectionSomme = []
+
+		for pss in self:
+			# v = (self.horloge % PSD.Cycle) + valeur
+			# index = (v // PSD.Periode) % PSD.NBelement
+			# collectionSomme.append(v + poids[index])
+			v = PSS([(self.horloge % PSD.Cycle,1)]) + pss
+			index = (int(v.valeur) // PSD.Periode) % PSD.NBelement
+			collectionSomme.append(v + poids[index])
+				
+		P = PSD(collectionSomme)
+		P.sethorloge(self.horloge)
+		
+		return P
+	
+	def __str__(self):
+		s = "["
+		for pss in self:
+			s += str(pss.display("moyenne"))
+			s += "*"
+		return s + "]"
+	
+	# Fonction de classe
+		
+	def ZERO():
+		return PSD([ PSS.ZERO() for _ in range(PSD.NBelement) ])
+		
+	def INF():
+		return PSD([ PSS.INF() for _ in range(PSD.NBelement) ])
+		
+	def RANDOM():
+		return PSD([ PSS.RANDOM() for _ in range(PSD.NBelement) ])

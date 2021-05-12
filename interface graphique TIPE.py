@@ -45,20 +45,20 @@ class LianteDeDonnees(Toplevel):
 	def __init__(self, données, function):
 		super().__init__()
 		
-		self.geometry('300x300')
+		self.geometry('600x300')
 		self.title("Liante")
 		
-		n = len(données)
+		n = len(données)	
 		frame1 = LabelFrame(self, text="départ")
 		frame1.pack(side = LEFT)
 		frame2 = LabelFrame(self, text="arrivées")
 		frame2.pack(side = RIGHT)
-		
+
 		cible1 = StringVar()
 		cible2 = StringVar()
 		L1 = [ Radiobutton(frame1, text=données[i], variable=cible1, value=données[i]) for i in range(n) ]
 		L2 = [ Radiobutton(frame2, text=données[i], variable=cible2, value=données[i]) for i in range(n) ]
-		
+
 		for k in range(n):
 			L1[k].pack()
 			L2[k].pack()
@@ -70,6 +70,9 @@ class LianteDeDonnees(Toplevel):
 		Button(self, text="Valider", command=recupCibles).pack(side = BOTTOM)
 
 # ============ Quelques fonctions auxiliaires =============
+
+def clear_graph():
+	G.effacer()
 
 def parser(filename):
 	fichier = open(filename,'r')
@@ -91,8 +94,8 @@ def import_ligne():
 		for k in range(len(ligne)-1):
 			rp = G.randomPoids()
 			G.ajouter_arc(ligne[k],ligne[k+1],rp)
-			# G.ajouter_arc(ligne[k+1],ligne[k],rp)
-	
+			G.ajouter_arc(ligne[k+1],ligne[k],rp)
+				
 def save_graph():
 	filename = asksaveasfilename(filetypes=[("Binary Graph","*.gbin")])
 	outfile = open(filename, 'wb')
@@ -190,11 +193,11 @@ def setPoids(A,B):
 		if a.origine == A and a.destination == B:
 			G.supprimer_arc(a)
 	
-	if typedeGraphe == 'DS':
+	if typeGraphe == 'DS':
 		define_poids_statique(A,B,False)
-	elif typedeGraphe == 'DD':
+	elif typeGraphe == 'DD':
 		define_poids_dynamique(cycle,periode,False)
-	elif typedeGraphe == 'SD':
+	elif typeGraphe == 'SD':
 		define_poids_dynamique(cycle,periode)
 	else: # typeGraphe == 'SS':
 		define_poids_statique(A,B,True)
@@ -215,7 +218,7 @@ def afficherpcc(A,B,frame):
 	for widget in frame.winfo_children():
 		widget.destroy()
 	
-	Visualiser(A,B,G,modeApercu.get())
+	Visualiser(A,B,G,modeApercu.get(), engine_render.get())
 	
 	photo = ImageTk.PhotoImage(file="Graphe.gv.png")
 	canv = Canvas(frame, width=1000, height=600, scrollregion=(0, 0, photo.width(), photo.height()))
@@ -237,7 +240,7 @@ def previsualiser(frame):
 	for widget in frame.winfo_children():
 		widget.destroy()
 
-	G.Visualisation(modeApercu.get())
+	G.Visualisation(modeApercu.get(),engine_render.get())
 	photo = ImageTk.PhotoImage(file="Graphe.gv.png")
 	canv = Canvas(frame, width=1100, height=600, scrollregion=(0, 0, photo.width(), photo.height()))
 
@@ -260,7 +263,7 @@ def FenetreMode():
     # Choix du type de graphe
     
 	fenetre = Tk()
-	fenetre.geometry('800x600')
+	fenetre.geometry('500x500')
 	
 	MODE = LabelFrame(fenetre, text="Mode")
 	MODE.pack(side = LEFT)
@@ -275,32 +278,40 @@ def FenetreMode():
 	Radiobutton(TYPEGRAPHE, text="Stochastique Statique",variable = typeGraphe, value="SS").pack()
 	Radiobutton(TYPEGRAPHE, text="Déterministe Dynamique",variable = typeGraphe, value="DD").pack()
 	Radiobutton(TYPEGRAPHE, text="Stochastique Dynamique",variable = typeGraphe, value="SD").pack()
+	
 
 	#Valider
 	def Valider():
+		if (mode.get() == "" or typeGraphe.get() == ""):
+			raise Exception("Désolé, il manque quelque chose")
 		fenetre.destroy()
 		FenetreCréation(mode.get(), typeGraphe.get())
 		
 	
 	Button(fenetre, text="Valider", command = Valider).pack(side = BOTTOM)
 
-def FenetreCréation(mode, typeGraphe):
+def FenetreCréation(mode, GrapheType):
+	
+	global typeGraphe, modeApercu, engine_render, G
+	
+	typeGraphe = GrapheType
+	
+	
 	fenetre = Tk()
-	fenetre.geometry('800x600')
+	fenetre.geometry('1000x600')
 	fenetre.title("mode : {} avec un type de graphe : {} ".format(mode,typeGraphe))
 	
-	global typedeGraphe, modeApercu, G
-	typedeGraphe = typeGraphe
 	modeApercu = StringVar()
+	engine_render = IntVar()
 	
 	if typeGraphe == 'DS':
 		G = Graphe([],[],Poids)
 	elif typeGraphe == 'SS':
 		G = Graphe([],[],PSS)
 	elif typeGraphe == 'DD':
-		pass
+		G = Graphe([],[],PDD)
 	else :
-		pass
+		G = Graphe([],[],PSD)
 		
 	def reveniraumenu():
 		fenetre.destroy()
@@ -322,6 +333,7 @@ def FenetreCréation(mode, typeGraphe):
 	menu2.add_command(label="Couper")
 	menu2.add_command(label="Copier")
 	menu2.add_command(label="Coller")
+	menu2.add_command(label="Effacer", command=clear_graph)
 	menubar.add_cascade(label="Edition", menu=menu2)
 
 	menu3 = Menu(menubar, tearoff=0)
@@ -410,7 +422,13 @@ def FenetreCréation(mode, typeGraphe):
 	Button(editeur, text="Aperçu", bg = "blue" , fg = "white", command = lambda : previsualiser(apercu) ).pack(side = BOTTOM)
 	Button(editeur, text="Créer ligne", bg = "green" , fg = "black", command = lambda : ajoutNoeuds(True)).pack()
 	Button(editeur, text="Importer ligne", bg = "green" , fg = "black", command = import_ligne).pack()
-
+	
+	engineLabel = LabelFrame(editeur, text = "engine render")
+	engineLabel.pack(side = TOP)
+	L = [ Radiobutton(engineLabel, text=roadmap[i] ,variable = engine_render, value=i) for i in range(len(roadmap)) ]
+	for rb in L:
+		rb.pack()
+	
 	# Cas des graphes Dynamiques
 
 	if typeGraphe[-1] == 'D':
@@ -427,15 +445,17 @@ def FenetreCréation(mode, typeGraphe):
 			periode = int(periodeEntree.get())
 			cycle = periode * int(nbdeperiodeEntree.get())
 			parametresDynamique.destroy()
-			Label(editeur, text = "Dynamique settings : Periode {} u.t / Cycle {} u.t".format(periode,cycle)).pack()
+			Label(editeur, text = "Dynamique settings : \nPeriode {} u.t / Cycle {} u.t".format(periode,cycle)).pack()
 		Button(parametresDynamique, text = "valider", command=recupererParametreDynamique).pack()
 
 	# Cas des graphes Statiques Stochastiques
 	
-	if typedeGraphe == 'SS':	
-		Radiobutton(editeur, text="Mode détail", variable = modeApercu, value="detail").pack(side = BOTTOM)
-		Radiobutton(editeur, text="Mode moyenne", variable = modeApercu, value="moyenne").pack(side = BOTTOM)
-		Radiobutton(editeur, text="Mode fiabilité", variable = modeApercu, value="fiabilite").pack(side = BOTTOM)
+	if typeGraphe == 'SS':
+		modeApercuLabel = LabelFrame(editeur, text = "mode Apercu")
+		modeApercuLabel.pack(side = TOP)
+		Radiobutton(modeApercuLabel, text="Mode détail", variable = modeApercu, value="detail").pack()
+		Radiobutton(modeApercuLabel, text="Mode moyenne", variable = modeApercu, value="moyenne").pack()
+		Radiobutton(modeApercuLabel, text="Mode fiabilité", variable = modeApercu, value="fiabilite").pack()
 	
 	fenetre.mainloop()
 

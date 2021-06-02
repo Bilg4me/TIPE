@@ -76,3 +76,20 @@ http://www.numdam.org/article/RO_1996__30_4_333_0.pdf
 https://pubsonline.informs.org/doi/pdf/10.1287/opre.24.6.1164
 
 
+DOT
+[1] Février 2020 : Familiarisation avec la notion de graphe. Lecture du livre de Claudi Alsina
+([1]).
+[2] Avril 2020 : Début de l'implémentation avec le langage de programmation Python. Utilisation
+uniquement des poids déterministes statiques, avec l'algorithme de Dijkstra classique.
+[3] Mai 2020 : Découverte des poids stochastiques et dynamiques, permettant de modéliser un
+environnement incertain et dépendant du temps. Implémentation de ces poids.
+[4] Juin 2020 : Utilisation de la bibliothèque Graphviz, permettant d'afficher les graphes et faciliter
+les tests.
+[5] Octobre 2020 : Réécriture du code en utilisant la programmation orientée objet, permettant un
+code plus léger et adapté aux différents type de poids.
+[6] Janvier 2021 : Application de l'algorithme au réseau de métro parisien.
+[7] Février 2021 : Développement d'une interface graphique à l'aide de la bibliothèque Tkinter
+d'édition des graphes et de calcul du plus court chemin pour tous types de poids.
+[8] Mai 2021 : Implémentation des algorithmes de Belllman-Ford, Floyd-Warshall et Dijkstra avec
+tas, étude de leur complexité et comparaison du temps d'exécution de ces algorithmes en fonction
+du nombre de noeuds et de la densité du graphe.

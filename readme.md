@@ -9,6 +9,7 @@
 - [PathFinding](https://fr.wikipedia.org/wiki/Recherche_de_chemin)
 - [PCC avec poids dynamique](https://fr.wikipedia.org/wiki/Probl%C3%A8me_de_plus_court_chemin#Plus_court_chemin_pour_des_poids_dynamiques)
 - [Metro et réseaux](https://images.math.cnrs.fr/+Plans-de-metro-et-reseaux+?lang=fr)
+- [Densité d’un graphe](https://fr.wikipedia.org/wiki/Densit%C3%A9_d%27un_graphe)
 
 ## Algorithme de Djikstra
 
@@ -31,6 +32,8 @@ Méthode primales pour resoudre le pb du plus court chemin avec contraintes de r
 
 [Générateur de graphes Graphviz it !](http://graphviz.it/#/gallery/abstract.gv)
 
+[Fonctionnement des classes](https://docs.python.org/fr/3/tutorial/classes.html)
+
 ## Données
 
 [Métro parisien](https://github.com/pgrimaud/horaires-ratp-api)
@@ -49,47 +52,19 @@ Méthode primales pour resoudre le pb du plus court chemin avec contraintes de r
 
 [interstices](https://interstices.info/le-plus-court-chemin/)
 
-
-TIPE
-
-* Fonctionnement des classes
-https://docs.python.org/fr/3/tutorial/classes.html
-Apprentissage du fonctionnement des classes en python et de la programmation orientée objet, fort utile pour le code que nous avons écrit, avec la notion d’héritage et l’algébrisation des poids.
-
-* Plans de métro et réseaux neuronaux
-Claudi Alsina, collection Le monde est mathématiques
-
-Vulgarisation scientifique
-Pour se familiariser avec la notion de graphes, les différentes applications qui peuvent en découler.
-
-* Densité d’un graphe
-https://fr.wikipedia.org/wiki/Densit%C3%A9_d%27un_graphe
-Utile pour déterminer lequel des algorithmes de Bellman-Ford, Dijkstra ou Floyd Warshall est le plus pertinent en terme de complexité
-Liste d’adjacence : graphe creux
-Matrice d’adjacence : graphe dense
-
-* Comparaison Bellman-Ford / Dijkstra
-Graphe de 6000 sommets : Dijkstra 1s ; Bellman-ford 20s
-https://www.youtube.com/watch?v=Xcwlb243ms0&list=PLHAKiQd_XzxM0Fw0xX_Wz65VFhW2874gA&index=4
-
-http://www.numdam.org/article/RO_1996__30_4_333_0.pdf
-https://pubsonline.informs.org/doi/pdf/10.1287/opre.24.6.1164
-
-
-DOT
-[1] Février 2020 : Familiarisation avec la notion de graphe. Lecture du livre de Claudi Alsina
+## DOT
+- [1] Février 2020 : Familiarisation avec la notion de graphe. Lecture du livre de Claudi Alsina
 ([1]).
-[2] Avril 2020 : Début de l'implémentation avec le langage de programmation Python. Utilisation
+- [2] Avril 2020 : Début de l'implémentation avec le langage de programmation Python. Utilisation
 uniquement des poids déterministes statiques, avec l'algorithme de Dijkstra classique.
-[3] Mai 2020 : Découverte des poids stochastiques et dynamiques, permettant de modéliser un
+- [3] Mai 2020 : Découverte des poids stochastiques et dynamiques, permettant de modéliser un
 environnement incertain et dépendant du temps. Implémentation de ces poids.
-[4] Juin 2020 : Utilisation de la bibliothèque Graphviz, permettant d'afficher les graphes et faciliter
+- [4] Juin 2020 : Utilisation de la bibliothèque Graphviz, permettant d'afficher les graphes et faciliter
 les tests.
-[5] Octobre 2020 : Réécriture du code en utilisant la programmation orientée objet, permettant un
+- [5] Octobre 2020 : Réécriture du code en utilisant la programmation orientée objet, permettant un
 code plus léger et adapté aux différents type de poids.
-[6] Janvier 2021 : Application de l'algorithme au réseau de métro parisien.
-[7] Février 2021 : Développement d'une interface graphique à l'aide de la bibliothèque Tkinter
+- [6] Janvier 2021 : Application de l'algorithme au réseau de métro parisien grâce au développement d'une interface graphique à l'aide de la bibliothèque Tkinter
 d'édition des graphes et de calcul du plus court chemin pour tous types de poids.
-[8] Mai 2021 : Implémentation des algorithmes de Belllman-Ford, Floyd-Warshall et Dijkstra avec
+- [7] Mai 2021 : Implémentation des algorithmes de Belllman-Ford, Floyd-Warshall et Dijkstra avec
 tas, étude de leur complexité et comparaison du temps d'exécution de ces algorithmes en fonction
 du nombre de noeuds et de la densité du graphe.

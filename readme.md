@@ -52,7 +52,7 @@ Méthode primales pour resoudre le pb du plus court chemin avec contraintes de r
 
 [interstices](https://interstices.info/le-plus-court-chemin/)
 
-http://www.numdam.org/article/RO_1996__30_4_333_0.pdf
+[COMPARAISON D'ALGORITHMES](http://www.numdam.org/article/RO_1996__30_4_333_0.pdf)
 
 ## DOT
 - [1] Février 2020 : Familiarisation avec la notion de graphe. Lecture du livre de Claudi Alsina

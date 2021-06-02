@@ -48,3 +48,31 @@ Méthode primales pour resoudre le pb du plus court chemin avec contraintes de r
 [Article](http://www.numdam.org/article/RO_1983__17_4_357_0.pdf)
 
 [interstices](https://interstices.info/le-plus-court-chemin/)
+
+
+TIPE
+
+* Fonctionnement des classes
+https://docs.python.org/fr/3/tutorial/classes.html
+Apprentissage du fonctionnement des classes en python et de la programmation orientée objet, fort utile pour le code que nous avons écrit, avec la notion d’héritage et l’algébrisation des poids.
+
+* Plans de métro et réseaux neuronaux
+Claudi Alsina, collection Le monde est mathématiques
+
+Vulgarisation scientifique
+Pour se familiariser avec la notion de graphes, les différentes applications qui peuvent en découler.
+
+* Densité d’un graphe
+https://fr.wikipedia.org/wiki/Densit%C3%A9_d%27un_graphe
+Utile pour déterminer lequel des algorithmes de Bellman-Ford, Dijkstra ou Floyd Warshall est le plus pertinent en terme de complexité
+Liste d’adjacence : graphe creux
+Matrice d’adjacence : graphe dense
+
+* Comparaison Bellman-Ford / Dijkstra
+Graphe de 6000 sommets : Dijkstra 1s ; Bellman-ford 20s
+https://www.youtube.com/watch?v=Xcwlb243ms0&list=PLHAKiQd_XzxM0Fw0xX_Wz65VFhW2874gA&index=4
+
+http://www.numdam.org/article/RO_1996__30_4_333_0.pdf
+https://pubsonline.informs.org/doi/pdf/10.1287/opre.24.6.1164
+
+

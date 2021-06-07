@@ -1,0 +1,29 @@
+def Generer(n, poids_max=10):
+    matrice = [[ for _ in range(n)] for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            matrice[i][j] = randint(1,poids_max)
+    for i in range(n):
+        matrice[i][i] = 0
+    return matrice
+
+
+from time import time
+
+def Chrono(Mat,A,B):
+    t = time()
+    Optimal(A,B)
+    return time() - t
+
+
+def TracerComplexitéTemps(Nmax):
+    N = range(2,Nmax+1)
+    T = []
+    for i in N:
+        Mat = Generer(i)
+        t = 0
+        for j in range(10):
+            A = randint(i) ; B = randint(i)
+            t += Chrono(Mat,A,B)
+        T.append(t / 10)
+    return T
